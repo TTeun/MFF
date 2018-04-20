@@ -1,4 +1,5 @@
 from random import gauss
+import numpy as np
 
 def average(values):
 	return sum(values) / len(values)
@@ -38,3 +39,6 @@ def x_and_y(N):
 	g = gauss(0., 1.)
 	y = [x_i + gauss(0., 1.) for x_i in x]
 	return x, y
+
+def alpha_and_beta_numpy(values_x, values_y):
+	return np.polyfit(values_x, values_y,1)
