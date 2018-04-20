@@ -1,5 +1,6 @@
 import funcs
 import matplotlib.pyplot as plt
+import copy as copy
 
 N = int(1e6)
 
