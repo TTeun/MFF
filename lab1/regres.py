@@ -2,7 +2,9 @@ import funcs
 import matplotlib.pyplot as plt
 import copy as copy
 
-[x, y] = funcs.x_and_y(100)
+N = int(1e6)
+
+[x, y] = funcs.x_and_y(N)
 
 [a, b] = funcs.alpha_and_beta(x, y)
 
