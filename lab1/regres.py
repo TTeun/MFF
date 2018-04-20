@@ -17,7 +17,7 @@ plt.ion()
 fig = plt.figure()
 plt.plot(x, y, 'o')
 plt.plot([x[0], x[-1]],r)
-plt.plot([x[0], x[-1]],r)
+plt.plot([x[0], x[-1]],r2)
 
 plt.grid()
 

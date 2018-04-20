@@ -4,33 +4,21 @@ import numpy as np
 def average(values):
 	return sum(values) / len(values)
 
-def N_times_variance(values):
-	m = average(values)
-	var = 0.
-	for x in (values):
-		var += (x - m)**2
-
-	return var
-
-def N_times_covarience(values_x, values_y):
-	m_x = average(values_x)
-	m_y = average(values_y)
-	covar = 0.
-	for x, y in zip(values_x, values_y):
-		covar += (x - m_x) * (y - m_y)
-
-	return covar
-
-
-def alpha(values_x, values_y):
-	return N_times_covarience(values_x, values_y) / N_times_variance(values_x)
-
-def beta(values_x, values_y):
-	return average(values_y) - alpha(values_x, values_y) * average(values_x)
+def in_product(values1, values2):
+	result = 0.
+	for x, y in zip(values1, values2):
+		result += x * y
+	return result
 
 def alpha_and_beta(values_x, values_y):
-	a = alpha(values_x, values_y)
-	b = average(values_y) - a * average(values_x)
+	m_x = average(values_x)
+	values_x[:] = [x_i - m_x for x_i in values_x]
+
+	m_y = average(values_y)
+	values_y[:] = [y_i - m_y for y_i in values_y]
+
+	a = in_product(values_y, values_x) / in_product(values_x, values_x)
+	b = m_y - a * m_x
 	return a, b
 
 
