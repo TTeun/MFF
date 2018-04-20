@@ -1,7 +1,9 @@
 import funcs
 import matplotlib.pyplot as plt
 
-[x, y] = funcs.x_and_y(100)
+N = int(1e6)
+
+[x, y] = funcs.x_and_y(N)
 
 [a, b] = funcs.alpha_and_beta(x, y)
 
@@ -17,7 +19,7 @@ plt.ion()
 fig = plt.figure()
 plt.plot(x, y, 'o')
 plt.plot([x[0], x[-1]],r)
-plt.plot([x[0], x[-1]],r)
+plt.plot([x[0], x[-1]],r2)
 
 plt.grid()
 
