@@ -1,5 +1,6 @@
 import funcs
 import matplotlib.pyplot as plt
+import copy as copy
 
 [x, y] = funcs.x_and_y(100)
 
