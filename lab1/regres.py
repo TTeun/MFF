@@ -28,6 +28,4 @@ fig.savefig('regression.png')
 
 plt.show()
 
-a
-
 
