@@ -25,7 +25,8 @@ def psi_k(k,t,sigma,omega): # the Psi_k(t) function
 	result += omega * np.exp(-1. * c1 * sigma * math.pi ** 2 * t)
 	return  result
 
-def transient(t, max_k = 20, mu = 0.035, rho = 1., L = 1., a = 1., omega = 1.): # computes the velocity vector of the transient flow at time t and initial u = 0
+# computes the velocity vector of the transient flow at time t and initial u = 0
+def transient(t, max_k = 20, mu = 0.035, rho = 1., L = 1., a = 1., omega = 1.): 
 	s = sigma(mu, rho, L)
 	x = list(np.linspace(0, L))
 	u = [0.] * len(x)

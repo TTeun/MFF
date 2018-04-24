@@ -5,28 +5,25 @@ import matplotlib.pyplot as plt
 plt.ion()
 plt.figure(1)
 
-p1, = plt.plot([], [])
+p_p, = plt.plot([], [], label = 'periodic')
+p_t, = plt.plot([], [], label = 'transient')
 
-plt.xlim(0, 1)
-plt.ylim(-1, 1)
+plt.ylim([-2., 2.])
+plt.xlim([0., 10.])
 
 
 L = 10
 x = list(np.linspace(0, L))
 
-t = 0.05
+times = np.linspace(0, 20, 201)
 tmax = 10
-while t < tmax:
-	plt.ylim([-2., 2.])
-	plt.xlim([0., 10.])
+for t in times:
 	plt.title(t)
-	y = fp.periodic(t)
-	p1.set_data(x, y)
-	plt.plot(x, y, '-o',label='periodic')
-	y = fp.transient(t)
-	plt.plot(x, y,'-*', label='transient')
+	y_p = fp.periodic(t)
+	p_p.set_data(x, y_p)
+	y_t = fp.transient(t)
+	p_t.set_data(x, y_t)
 	plt.legend()
 	plt.draw()
 	plt.pause(0.004)
-	plt.gcf().clear()
 	t += 0.05
