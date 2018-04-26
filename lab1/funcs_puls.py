@@ -45,7 +45,7 @@ def ss(x):
 	return np.sin(x) * np.sinh(x)
 	
 def kappa(mu,rho,omega):
-	return (omega*rho/(2*mu))**0.5
+	return (omega * rho / (2 * mu)) ** 0.5
 
 # computes the f_1(x), f_2(x) and f_3(x) functions.
 def f1_f2_f3(x,mu,rho,L,omega): 
@@ -65,4 +65,3 @@ def periodic(t, mu = 0.035, rho = 1., L = 1., a = 1., omega = 1.):
 	f1,f2,f3 = f1_f2_f3(x,mu,rho,L,omega)
 	u = [-a/omega * (f2_i/f3 * np.sin(omega * t) - (1 - f1_i/f3) * np.cos(omega * t)) for f1_i,f2_i in zip(f1,f2)]
 	return u
-	
