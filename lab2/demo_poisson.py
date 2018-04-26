@@ -12,7 +12,6 @@ and boundary conditions given by
 du/dn(x, y) = sin(5*x) for y = 0 or y = 1
 """
 
-
 from dolfin import *
 
 # Create mesh and define function space
@@ -24,14 +23,14 @@ def boundary(x):
     return x[0] < DOLFIN_EPS or x[0] > 1.0 - DOLFIN_EPS
 
 # Define boundary condition
-u0 = Constant(0.0)
+u0 = Expression("1 + 2*x[0]*x[0] + 3*x[1]*x[1]", degree=2)
 bc = DirichletBC(V, u0, boundary)
 
 # Define variational problem
 u = TrialFunction(V)
 v = TestFunction(V)
-f = Expression("10*exp(-(pow(x[0] - 0.5, 2) + pow(x[1] - 0.5, 2)) / 0.02)")
-g = Expression("sin(5*x[0])")
+f = Expression("-10", degree=2)
+g = Expression("1 + 2*x[0]*x[0] + 3*x[1]*x[1]", degree=2)
 a = inner(grad(u), grad(v))*dx
 L = f*v*dx + g*v*ds
 
