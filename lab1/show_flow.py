@@ -15,8 +15,8 @@ plt.xlim([0., 10.])
 L = 10
 x = list(np.linspace(0, L))
 
-Mu_val = 0.1 # Dynamic viscosity
-tmax = 10
+Mu_val = 0.035 # Dynamic viscosity
+tmax = 20
 
 times = np.linspace(0, tmax, 10*tmax+1) # t runs from zero to tmax in steps of 0.1
 
