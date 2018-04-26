@@ -41,7 +41,7 @@ def ss(x): # the ss(x) function
 	return np.sin(x) * np.sinh(x)
 	
 def kappa(mu,rho,omega):
-	return (omega*rho/(2*mu))**0.5
+	return (omega * rho / (2 * mu)) ** 0.5
 
 def f1_f2_f3(x,mu,rho,L,omega): # computes the f_1(x), f_2(x) and f_3(x) functions.
 	cc1 = [cc(kappa(mu, rho, omega) * (x_i - L/2.)) for x_i in x]
@@ -62,4 +62,4 @@ def periodic(t, mu = 0.035, rho = 1., L = 1., a = 1., omega = 1.): # computes th
 	return u
 	
 t = 1e7
-print(periodic(t)-transient(t,50)) # should be (almost) zero
+print(periodic(t)+transient(t,50)) # should be (almost) zero

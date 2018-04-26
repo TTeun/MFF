@@ -15,15 +15,18 @@ plt.xlim([0., 10.])
 L = 10
 x = list(np.linspace(0, L))
 
-times = np.linspace(0, 20, 201)
+Mu_val = 0.1 # Dynamic viscosity
 tmax = 10
+
+times = np.linspace(0, tmax, 10*tmax+1) # t runs from zero to tmax in steps of 0.1
+
 for t in times:
 	plt.title(t)
-	y_p = fp.periodic(t)
+	y_p = fp.periodic(t,mu = Mu_val)
 	p_p.set_data(x, y_p)
-	y_t = fp.transient(t)
+	y_t = -fp.transient(t,mu = Mu_val)
 	p_t.set_data(x, y_t)
 	plt.legend()
 	plt.draw()
 	plt.pause(0.004)
-	t += 0.05
+	#t += 0.05
