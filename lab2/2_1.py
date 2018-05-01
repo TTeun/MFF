@@ -15,32 +15,37 @@ def get_approximation(N):
 	    			x[1] < DOLFIN_EPS or 
 			    	x[1] > 1.0 - DOLFIN_EPS )
 
-	# Define boundary condition
+	# Define the functions used in PDE
 	u0 = Expression("x[0] * x[1] + cos(2 * pi * x[0]) * sin(2 * pi * x[1])", degree=4)
 	f = Expression("8 * pi * pi * cos(2 * pi * x[0]) * sin(2 * pi * x[1]) ", degree=4)
+
+	# Define boundary condition
 	bc = DirichletBC(V, u0, boundary)
 
 	# Define variational problem
-	u = TrialFunction(V)
+	u_trial = TrialFunction(V)
 	v = TestFunction(V)
-	a = inner(grad(u), grad(v))*dx
+	a = inner(grad(u_trial), grad(v))*dx
 	L = f*v*dx 
 
 	# Compute solution
 	u = Function(V)
 	solve(a == L, u, bc)
 
-	diff = (u0 - u) * (u0 -u);
 	return errornorm(u0, u)
 
+# Initialize arrays
 x = []
 y = []
 for k in range(6):
 	y.append(get_approximation(2 ** (k + 1)))
 	x.append(2 ** (k + 1))
 
+
+# Handle plotting
 plt.ion()
 fig = plt.figure()
+plt.title('Convergence of solution to a(u,v) = L(v)')
 plt.loglog(x,y, basex=2, basey=2)
 plt.grid()
 
