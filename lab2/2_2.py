@@ -42,7 +42,7 @@ def diffreac(N,  bc_type='dirichlet'):
 			u_x = Expression('4 * x[0]', degree=1) + u0
 			u_y = Expression('6 * x[1]', degree=1) + u0
 
-			a = (u * v) * dx + inner(grad(u), grad(v))*dx - (u * v) * ds
+			a = (u * v) * dx + inner(grad(u), grad(v))*dx + (u * v) * ds
 			u = Function(V)
 			L += u_y * v * ds(1) +  u_x * v * ds(0) 
 
