@@ -26,7 +26,6 @@ T_N.mark(boundaries, 1)
 u0 = Expression("1 + 2*x[0]*x[0] + 3*x[1]*x[1]", degree=2)
 bc = DirichletBC(V, u0, boundaries, 0)
 g = Expression("6 * x[1]", degree=1)
-# bc2 = Neumann(V, u0, T_G)
 
 # Define variational problem
 u = TrialFunction(V)
