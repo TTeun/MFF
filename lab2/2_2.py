@@ -48,14 +48,13 @@ def diffreac(N,  bc_type='dirichlet'):
 		solve(a == L, u, bc)
 
 	if (bc_type == 'neumann'):
-		a = (u * v) * dx + inner(grad(u), grad(v))*dx
-		u = Function(V)
 		u_x = Expression('4 * x[0]', degree=1)
 		u_y = Expression('6 * x[1]', degree=1)
 		T_v = T_VERT()
 		T_h = T_HORI()
 		T_v.mark(boundaries, 0)
 		T_h.mark(boundaries, 1)
+<<<<<<< HEAD
 		# bc = DirichletBC(V, u0, boundaries, 0)
 		ds = Measure('ds', domain=mesh, subdomain_data=boundaries)
 		L = f*v*dx + u_y * v * ds(1) +  u_x * v * ds(0) 
@@ -63,46 +62,70 @@ def diffreac(N,  bc_type='dirichlet'):
 
 	if (bc_type == 'robin'):
 		boundaries = FacetFunction('size_t', mesh)
+=======
 
+		a = (u * v) * dx + inner(grad(u), grad(v))*dx
+		u = Function(V)
+		L = f*v*dx + u_y * v * ds(1) +  u_x * v * ds(0) 
+		solve(a == L, u)
+>>>>>>> origin/master
+
+	if (bc_type == 'robin'):
 		u_x = Expression('4 * x[0]', degree=1) + u0
 		u_y = Expression('6 * x[1]', degree=1) + u0
 		T_v = T_VERT()
 		T_h = T_HORI()
 		T_v.mark(boundaries, 0)
 		T_h.mark(boundaries, 1)
+<<<<<<< HEAD
 		ds = Measure('ds', domain=mesh, subdomain_data=boundaries)
 		a = (u * v) * dx + inner(grad(u), grad(v))*dx + (u * v) * ds
 		L = f*v*dx 
 		L += u_y * v * ds(1) +  u_x * v * ds(0) 
 		u = Function(V)
+=======
+
+		a = (u * v) * dx + inner(grad(u), grad(v))*dx - (u * v) * ds
+		u = Function(V)
+		L = f*v*dx  + u_y * v * ds(1) +  u_x * v * ds(0) 
+>>>>>>> origin/master
 		solve(a == L, u)
+
+	if (bc_type == 'mixed'):
+		T_left = T_LEFT()
+
+<<<<<<< HEAD
+diffreac(16, 'robin')
+diffreac(16, 'neumann')
+diffreac(16, 'dirichlet')
+=======
+		T_right = T_RIGHT()
+		u_right = Expression('4', degree=1)
+>>>>>>> origin/master
+
+		T_hori = T_HORI()
+		u_y = Expression('6 * x[1]', degree=1) + u0
+
+		T_left.mark(boundaries, 0)
+		T_right.mark(boundaries, 1)
+		T_hori.mark(boundaries, 2)
+
+		bc = DirichletBC(V, u0, boundaries, 0)
+
+		a = (u * v) * dx + inner(grad(u), grad(v))*dx - (u * v) * ds(2)
+		u = Function(V)
+		L = f*v*dx  + u_right * v * ds(1) 
+		solve(a == L, u, bc)
+
 
 	# Plot solution
 	plot(u, interactive=True)
 	plt.show()
 	print errornorm(u0, u)
+	file = File(bc_type + '.pvd')
+	file << u
 
-diffreac(16, 'robin')
-diffreac(16, 'neumann')
 diffreac(16, 'dirichlet')
-
-
-		# u_top = Expression('6', degree=2)
-		# u_bottom = Expression('0', degree=2)
-		# u_left = Expression('0', degree=2)
-		# u_right = Expression('4', degree=2)
-
-		# T_top = T_TOP()
-		# T_bottom = T_BOTTOM()
-		# T_left = T_LEFT()
-		# T_right = T_RIGHT()
-
-		# T_top.mark(boundaries, 0)
-		# T_bottom.mark(boundaries, 1)
-		# T_left.mark(boundaries, 2)
-		# T_right.mark(boundaries, 3)
-		
-		# L = f * v * ds +  v * u_top * ds(0) + v * u_bottom * ds(1) + v * u_left * ds(2) + v * u_right * ds(3) 
-		# solve(a == L, u)
-
-
+diffreac(16, 'neumann')
+diffreac(16, 'robin')
+diffreac(16, 'mixed')
