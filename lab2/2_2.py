@@ -75,11 +75,9 @@ def diffreac(N,  bc_type='dirichlet'):
 
 	if (bc_type == 'mixed'):
 		T_left = T_LEFT()
-
 		T_right = T_RIGHT()
-		u_right = Expression('4', degree=1)
-
 		T_hori = T_HORI()
+		u_right = Expression('4', degree=1)
 		u_y = Expression('6 * x[1]', degree=1) + u0
 
 		T_left.mark(boundaries, 0)
@@ -90,12 +88,12 @@ def diffreac(N,  bc_type='dirichlet'):
 
 		a = (u * v) * dx + inner(grad(u), grad(v))*dx - (u * v) * ds(2)
 		u = Function(V)
-		L = f*v*dx  + u_right * v * ds(1) 
+		L = f*v*dx  + u_right * v * ds(1) + u_y * v * ds(2)
 		solve(a == L, u, bc)
-
 
 	# Plot solution
 	plot(u, interactive=True)
+	plt.title(bc_type)
 	plt.show()
 	print errornorm(u0, u)
 	file = File(bc_type + '.pvd')
