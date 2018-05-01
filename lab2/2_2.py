@@ -1,5 +1,7 @@
 from dolfin import *
 from numpy import *
+import matplotlib.pyplot as plt
+
 
 # Create mesh and define function space
 mesh = UnitSquareMesh(8, 8)
@@ -44,10 +46,9 @@ L = f*v*dx + g*v*ds(1)
 u = Function(V)
 solve(a == L, u, bc)
 
-File("poisson2.pvd") << u
-
 # Plot solution
 plot(u, interactive=True)
+plt.show()
 
 diff = (u0 - u) * (u0 -u);
 print sqrt(assemble (diff * dx))
