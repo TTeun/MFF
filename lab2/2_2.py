@@ -48,59 +48,60 @@ def diffreac(N,  bc_type='dirichlet'):
 		solve(a == L, u, bc)
 
 	if (bc_type == 'neumann'):
-		a = (u * v) * dx + inner(grad(u), grad(v))*dx
-		u = Function(V)
 		u_x = Expression('4 * x[0]', degree=1)
 		u_y = Expression('6 * x[1]', degree=1)
 		T_v = T_VERT()
 		T_h = T_HORI()
 		T_v.mark(boundaries, 0)
 		T_h.mark(boundaries, 1)
-		# bc = DirichletBC(V, u0, boundaries, 0)
-		L += f*v*dx + u_y * v * ds(1) +  u_x * v * ds(0) 
+
+		a = (u * v) * dx + inner(grad(u), grad(v))*dx
+		u = Function(V)
+		L = f*v*dx + u_y * v * ds(1) +  u_x * v * ds(0) 
 		solve(a == L, u)
 
 	if (bc_type == 'robin'):
-		a = (u * v) * dx + inner(grad(u), grad(v))*dx - (u * v) * ds
-		u = Function(V)
-		L = f*v*dx 
-		boundaries = FacetFunction('size_t', mesh)
-
 		u_x = Expression('4 * x[0]', degree=1) + u0
 		u_y = Expression('6 * x[1]', degree=1) + u0
 		T_v = T_VERT()
 		T_h = T_HORI()
 		T_v.mark(boundaries, 0)
 		T_h.mark(boundaries, 1)
-		L += u_y * v * ds(1) +  u_x * v * ds(0) 
+
+		a = (u * v) * dx + inner(grad(u), grad(v))*dx - (u * v) * ds
+		u = Function(V)
+		L = f*v*dx  + u_y * v * ds(1) +  u_x * v * ds(0) 
 		solve(a == L, u)
+
+	if (bc_type == 'mixed'):
+		T_left = T_LEFT()
+
+		T_right = T_RIGHT()
+		u_right = Expression('4', degree=1)
+
+		T_hori = T_HORI()
+		u_y = Expression('6 * x[1]', degree=1) + u0
+
+		T_left.mark(boundaries, 0)
+		T_right.mark(boundaries, 1)
+		T_hori.mark(boundaries, 2)
+
+		bc = DirichletBC(V, u0, boundaries, 0)
+
+		a = (u * v) * dx + inner(grad(u), grad(v))*dx - (u * v) * ds(2)
+		u = Function(V)
+		L = f*v*dx  + u_right * v * ds(1) 
+		solve(a == L, u, bc)
+
 
 	# Plot solution
 	plot(u, interactive=True)
 	plt.show()
 	print errornorm(u0, u)
+	file = File(bc_type + '.pvd')
+	file << u
 
+diffreac(16, 'dirichlet')
+diffreac(16, 'neumann')
 diffreac(16, 'robin')
-# diffreac(16, 'neumann')
-# diffreac(16, 'dirichlet')
-
-
-		# u_top = Expression('6', degree=2)
-		# u_bottom = Expression('0', degree=2)
-		# u_left = Expression('0', degree=2)
-		# u_right = Expression('4', degree=2)
-
-		# T_top = T_TOP()
-		# T_bottom = T_BOTTOM()
-		# T_left = T_LEFT()
-		# T_right = T_RIGHT()
-
-		# T_top.mark(boundaries, 0)
-		# T_bottom.mark(boundaries, 1)
-		# T_left.mark(boundaries, 2)
-		# T_right.mark(boundaries, 3)
-		
-		# L = f * v * ds +  v * u_top * ds(0) + v * u_bottom * ds(1) + v * u_left * ds(2) + v * u_right * ds(3) 
-		# solve(a == L, u)
-
-
+diffreac(16, 'mixed')
