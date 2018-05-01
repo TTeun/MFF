@@ -6,67 +6,85 @@ from domains import *
 # supress uncecessary output
 set_log_level(ERROR)
 
-def diffreac(N,  bc_type='dirichlet'):
-	# Create mesh and define function space
-	mesh = UnitSquareMesh(N, N)
-	V = FunctionSpace(mesh, "Lagrange", 1)
-	u0 = Expression("9 + 2*x[0]*x[0] + 3*x[1]*x[1]", degree=2)
 
-	u = TrialFunction(V)
-	v = TestFunction(V)
-	f = Expression("-10", degree=2) + u0
-	L = f*v*dx
+def diffreac(N,  bc_type='dirichlet', print_to_file=False):
+    # Create mesh and define function space
+    mesh = UnitSquareMesh(N, N)
+    # Set up function space
+    V = FunctionSpace(mesh, "Lagrange", 2)
+    # Set up functions
+    u = TrialFunction(V)
+    v = TestFunction(V)
+    u_sol = Function(V)
 
-	if (bc_type == 'dirichlet'):
-		boundaries = FacetFunction('size_t', mesh)
-		bc = DirichletBC(V, u0, boundaries, 0)
+    # Set up variational problem
+    u0 = Expression("9 + 2*x[0]*x[0] + 3*x[1]*x[1]", degree=2)
+    f = Expression("-10", degree=2) + u0
+    a = (u * v) * dx + inner(grad(u), grad(v)) * dx
+    L = f * v * dx
 
-		a = (u * v) * dx + inner(grad(u), grad(v))*dx
-		u = Function(V)
+    if (bc_type == 'dirichlet'):
+        # Set up boundary
+        boundaries = FacetFunction('size_t', mesh)
+        bc = DirichletBC(V, u0, boundaries, 0)
 
-		solve(a == L, u, bc)
-	else:
-		if (bc_type == 'neumann'):
-			[boundaries, ds] = set_neumann_robin_boundary(mesh)
-			u_x = Expression('4 * x[0]', degree=1)
-			u_y = Expression('6 * x[1]', degree=1)
+        # Solve the system
+        solve(a == L, u_sol, bc)
+    else:
+        if (bc_type == 'neumann'):
+            # Set up boundary
+            [boundaries, ds] = set_neumann_or_robin_boundary(mesh)
 
-			a = (u * v) * dx + inner(grad(u), grad(v))*dx
-			u = Function(V)
-			L += u_y * v * ds(1) +  u_x * v * ds(0) 
+            # Set up boundary functions
+            u_x = Expression('4 * x[0]', degree=1)
+            u_y = Expression('6 * x[1]', degree=1)
 
-			solve(a == L, u)
+            # Add terms from neumann condition
+            L += u_y * v * ds(1) + u_x * v * ds(0)
+            # Solve the system
+            solve(a == L, u_sol)
 
-		if (bc_type == 'robin'):
-			[boundaries, ds] = set_neumann_robin_boundary(mesh)
-			u_x = Expression('4 * x[0]', degree=1) + u0
-			u_y = Expression('6 * x[1]', degree=1) + u0
+        if (bc_type == 'robin'):
+            # Set up boundary
+            [boundaries, ds] = set_neumann_or_robin_boundary(mesh)
 
-			a = (u * v) * dx + inner(grad(u), grad(v))*dx + (u * v) * ds
-			u = Function(V)
-			L += u_y * v * ds(1) +  u_x * v * ds(0) 
+            # Set up boundary functions
+            u_x = Expression('4 * x[0]', degree=1) + u0
+            u_y = Expression('6 * x[1]', degree=1) + u0
 
-			solve(a == L, u)
+            # Add terms from robin condition
+            a += (u * v) * ds
+            L += u_y * v * ds(1) + u_x * v * ds(0)
+            # Solve the system
+            solve(a == L, u_sol)
 
-		if (bc_type == 'mixed'):
-			[boundaries, ds] = set_mixed_boundary(mesh)
-			u_right = Expression('4', degree=1)
-			u_y = Expression('6 * x[1]', degree=1) + u0
-			bc = DirichletBC(V, u0, boundaries, 0)
+        if (bc_type == 'mixed'):
+            # Set up boundary
+            [boundaries, ds] = set_mixed_boundary(mesh)
+            bc = DirichletBC(V, u0, boundaries, 0)
 
-			a = (u * v) * dx + inner(grad(u), grad(v))*dx - (u * v) * ds(2)
-			u = Function(V)
-			L += u_right * v * ds(1) + u_y * v * ds(2)
+            # Set up boundary functions
+            u_right = Expression('4', degree=1)
+            u_y = Expression('6 * x[1]', degree=1) + u0
 
-			solve(a == L, u, bc)
+            # Add terms from robin and neumann condition
+            a += (u * v) * ds(2)
+            L += u_right * v * ds(1) + u_y * v * ds(2)
+            # Solve the system
+            solve(a == L, u_sol, bc)
 
-	# Plot solution
-	plot(u, interactive=True)
-	plt.title(bc_type)
-	plt.show()
-	print errornorm(u0, u)
-	file = File(bc_type + '.pvd')
-	file << u
+    # Plot solution
+    plot(u_sol, interactive=True)
+    plt.title(bc_type)
+    plt.show()
+
+    # Assess the solution by using the exact solution in the errornorm
+    print errornorm(u0, u_sol)
+
+    if (print_to_file):
+        # Print to files readable by ParaView
+        file = File(bc_type + '.pvd')
+        file << u
 
 diffreac(64, 'dirichlet')
 diffreac(64, 'neumann')
