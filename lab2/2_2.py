@@ -57,13 +57,11 @@ def diffreac(N,  bc_type='dirichlet'):
 		T_v.mark(boundaries, 0)
 		T_h.mark(boundaries, 1)
 		# bc = DirichletBC(V, u0, boundaries, 0)
-		L += f*v*dx + u_y * v * ds(1) +  u_x * v * ds(0) 
+		ds = Measure('ds', domain=mesh, subdomain_data=boundaries)
+		L = f*v*dx + u_y * v * ds(1) +  u_x * v * ds(0) 
 		solve(a == L, u)
 
 	if (bc_type == 'robin'):
-		a = (u * v) * dx + inner(grad(u), grad(v))*dx - (u * v) * ds
-		u = Function(V)
-		L = f*v*dx 
 		boundaries = FacetFunction('size_t', mesh)
 
 		u_x = Expression('4 * x[0]', degree=1) + u0
@@ -72,7 +70,11 @@ def diffreac(N,  bc_type='dirichlet'):
 		T_h = T_HORI()
 		T_v.mark(boundaries, 0)
 		T_h.mark(boundaries, 1)
+		ds = Measure('ds', domain=mesh, subdomain_data=boundaries)
+		a = (u * v) * dx + inner(grad(u), grad(v))*dx + (u * v) * ds
+		L = f*v*dx 
 		L += u_y * v * ds(1) +  u_x * v * ds(0) 
+		u = Function(V)
 		solve(a == L, u)
 
 	# Plot solution
@@ -81,8 +83,8 @@ def diffreac(N,  bc_type='dirichlet'):
 	print errornorm(u0, u)
 
 diffreac(16, 'robin')
-# diffreac(16, 'neumann')
-# diffreac(16, 'dirichlet')
+diffreac(16, 'neumann')
+diffreac(16, 'dirichlet')
 
 
 		# u_top = Expression('6', degree=2)
