@@ -1,7 +1,7 @@
 from dolfin import *
 from numpy import *
 import matplotlib.pyplot as plt
-from fenics import * # here we need Point
+#from fenics import * # here we need Point
 import mshr
 
 # supress uncecessary output
@@ -22,9 +22,9 @@ class T_Rob(SubDomain):
 def set_boundary(mesh):
     boundaries = FacetFunction('size_t', mesh)
     T_1, T_2, T_3 = [T_Dir(), T_Neu(), T_Rob()]
-    T_1.mark(boundaries, 0)
-    T_2.mark(boundaries, 1)
-    T_3.mark(boundaries, 2)
+    T_1.mark(boundaries, 1)
+    T_2.mark(boundaries, 2)
+    T_3.mark(boundaries, 3)
 
     ds = Measure('ds', domain=mesh, subdomain_data=boundaries)
     return [boundaries, ds]
@@ -49,15 +49,15 @@ def diffreac(h, print_to_file=False):
 
     # Set up boundary
     [boundaries, ds] = set_boundary(mesh)
-    bc = DirichletBC(V, 10000., boundaries, 0)
+    bc = DirichletBC(V, 10000., boundaries, 1)
 
     # Set up boundary functions
     g_N = Expression('0', degree=1)
     g_R = h * u_f
    
     # Set up variational problem
-    a = k * inner(grad(u), grad(v)) * dx + k * h * (u * v) * ds(2)
-    L = g_N * v * k * ds(1) + g_R * k * v * ds(2)
+    a = k * inner(grad(u), grad(v)) * dx + k * h * (u * v) * ds(3)
+    L = g_N * v * k * ds(2) + g_R * k * v * ds(3)
 	
     # Solve the system
     solve(a == L, u_sol, bc)
