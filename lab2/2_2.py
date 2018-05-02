@@ -22,57 +22,57 @@ def diffreac(N,  bc_type='dirichlet', print_to_file=False):
     f = Expression("-10", degree=2) + u0
     a = (u * v) * dx + inner(grad(u), grad(v)) * dx
     L = f * v * dx
+	
+    bcs = []
 
     if (bc_type == 'dirichlet'):
         # Set up boundary
         boundaries = FacetFunction('size_t', mesh)
         bc = DirichletBC(V, u0, boundaries, 0)
+        bcs.append(bc)
 
-        # Solve the system
-        solve(a == L, u_sol, bc)
-    else:
-        if (bc_type == 'neumann'):
-            # Set up boundary
-            [boundaries, ds] = set_neumann_or_robin_boundary(mesh)
+    	
+    elif (bc_type == 'neumann'):
+		# Set up boundary
+		[boundaries, ds] = set_neumann_or_robin_boundary(mesh)
 
-            # Set up boundary functions
-            u_x = Expression('4 * x[0]', degree=1)
-            u_y = Expression('6 * x[1]', degree=1)
+		# Set up boundary functions
+		u_x = Expression('4 * x[0]', degree=1)
+		u_y = Expression('6 * x[1]', degree=1)
 
-            # Add terms from neumann condition
-            L += u_y * v * ds(1) + u_x * v * ds(0)
-            # Solve the system
-            solve(a == L, u_sol)
+		# Add terms from neumann condition
+		L += u_y * v * ds(1) + u_x * v * ds(0)
 
-        if (bc_type == 'robin'):
-            # Set up boundary
-            [boundaries, ds] = set_neumann_or_robin_boundary(mesh)
+    elif (bc_type == 'robin'):
+		# Set up boundary
+		[boundaries, ds] = set_neumann_or_robin_boundary(mesh)
 
-            # Set up boundary functions
-            u_x = Expression('4 * x[0]', degree=1) + u0
-            u_y = Expression('6 * x[1]', degree=1) + u0
+		# Set up boundary functions
+		u_x = Expression('4 * x[0]', degree=1) + u0
+		u_y = Expression('6 * x[1]', degree=1) + u0
 
-            # Add terms from robin condition
-            a += (u * v) * ds
-            L += u_y * v * ds(1) + u_x * v * ds(0)
-            # Solve the system
-            solve(a == L, u_sol)
+		# Add terms from robin condition
+		a += (u * v) * ds
+		L += u_y * v * ds(1) + u_x * v * ds(0)
 
-        if (bc_type == 'mixed'):
-            # Set up boundary
-            [boundaries, ds] = set_mixed_boundary(mesh)
-            bc = DirichletBC(V, u0, boundaries, 0)
+    elif (bc_type == 'mixed'):
+		# Set up boundary
+		[boundaries, ds] = set_mixed_boundary(mesh)
+		bc = DirichletBC(V, u0, boundaries, 0)
+		bcs.append(bc)
 
-            # Set up boundary functions
-            u_right = Expression('4', degree=1)
-            u_y = Expression('6 * x[1]', degree=1) + u0
+		# Set up boundary functions
+		u_right = Expression('4', degree=1)
+		u_y = Expression('6 * x[1]', degree=1) + u0
 
-            # Add terms from robin and neumann condition
-            a += (u * v) * ds(2)
-            L += u_right * v * ds(1) + u_y * v * ds(2)
-            # Solve the system
-            solve(a == L, u_sol, bc)
+		# Add terms from robin and neumann condition
+		a += (u * v) * ds(2)
+		L += u_right * v * ds(1) + u_y * v * ds(2)
 
+	
+    # Solve the system
+    solve(a == L, u_sol, bcs)
+	
     # Plot solution
     plot(u_sol, interactive=True)
     plt.title(bc_type)
