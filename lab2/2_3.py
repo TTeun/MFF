@@ -47,37 +47,31 @@ def diffreac(h, print_to_file=False):
 
     # Set up boundary
     [boundaries, ds] = set_boundary(mesh)
-    bc = DirichletBC(V, 10000., boundaries, 1)
+    bc = DirichletBC(V, 1000., boundaries, 1)
 
     # Set up boundary functions
     g_N = Expression('0', degree=1)
     g_R = h * u_f
    
     # Set up variational problem
-<<<<<<< HEAD
     a = k * inner(grad(u), grad(v)) * dx + k * h * (u * v) * ds(3)
     L = g_N * v * k * ds(2) + g_R * k * v * ds(3)
 	
-=======
-    a = k * inner(grad(u), grad(v)) * dx + k * (u * v) * ds(2)
-    L = g_R * k * v * ds(2)
-    u = Function(V)
-
->>>>>>> origin/master
     # Solve the system
-    solve(a == L, u, bc)
+    usol = Function(V)
+    solve(a == L, usol, bc)
 	
     # Plot solution
-    plot(u, interactive=True)
+    plot(usol, interactive=True)
     plt.title('h = %d' % h)
     plt.show()
 
-    print assemble(u * dx)
+    print assemble(usol * dx)
 
     if (print_to_file):
         # Print to files readable by ParaView
         file = File('hvalue%d.pvd' % h)
-        file << u
+        file << usol
 
 diffreac(10.,True)
 diffreac(10000.,True)
