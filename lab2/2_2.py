@@ -73,6 +73,8 @@ def diffreac(N,  bc_type='dirichlet', print_to_file=False):
     # Solve the system
     solve(a == L, u_sol, bcs)
 
+    print errornorm(u0, u_sol)
+
     # Plot solution
     plot(u_sol, interactive=True)
     plt.title(bc_type)
