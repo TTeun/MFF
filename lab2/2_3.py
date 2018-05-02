@@ -49,7 +49,7 @@ def diffreac(h, print_to_file=False):
 
     # Set up boundary
     [boundaries, ds] = set_boundary(mesh)
-    bc = DirichletBC(V, 10000., boundaries, 2)
+    bc = DirichletBC(V, 10000., boundaries, 0)
 
     # Set up boundary functions
     g_N = Expression('0', degree=1)
@@ -66,6 +66,8 @@ def diffreac(h, print_to_file=False):
     plot(u_sol, interactive=True)
     plt.title('h = %d' % h)
     plt.show()
+
+    print assemble(u_sol * dx)
 
     if (print_to_file):
         # Print to files readable by ParaView
