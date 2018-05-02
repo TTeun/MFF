@@ -35,8 +35,7 @@ def diffreac(h, print_to_file=False):
     u_f = 280.
 
     # Create mesh 
-    domain = mshr.Rectangle(Point(-1, -1), Point(1, 1)) - \
-        mshr.Circle(Point(0, 0), 0.25)
+    domain = mshr.Rectangle(Point(-1, -1), Point(1, 1)) - mshr.Circle(Point(0, 0), 0.25)
     mesh = mshr.generate_mesh(domain, N)
 
     # Set up function space
@@ -45,7 +44,6 @@ def diffreac(h, print_to_file=False):
     # Set up functions
     u = TrialFunction(V)
     v = TestFunction(V)
-    u_sol = Function(V)
 
     # Set up boundary
     [boundaries, ds] = set_boundary(mesh)
@@ -56,23 +54,24 @@ def diffreac(h, print_to_file=False):
     g_R = h * u_f
    
     # Set up variational problem
-    a = k * inner(grad(u), grad(v)) * dx + k * h * (u * v) * ds(2)
-    L = g_N * v * k * ds(1) + g_R * k * v * ds(2)
-	
+    a = k * inner(grad(u), grad(v)) * dx + k * (u * v) * ds(2)
+    L = g_R * k * v * ds(2)
+    u = Function(V)
+
     # Solve the system
-    solve(a == L, u_sol, bc)
+    solve(a == L, u, bc)
 	
     # Plot solution
-    plot(u_sol, interactive=True)
+    plot(u, interactive=True)
     plt.title('h = %d' % h)
     plt.show()
 
-    print assemble(u_sol * dx)
+    print assemble(u * dx)
 
     if (print_to_file):
         # Print to files readable by ParaView
         file = File('hvalue%d.pvd' % h)
-        file << u_sol
+        file << u
 
 diffreac(10.,True)
 diffreac(10000.,True)
