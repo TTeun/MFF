@@ -17,22 +17,23 @@ T_D = T_D()
 T_N = T_N()
 
 boundaries = FacetFunction('size_t', mesh)
-# boundaries.set_all(0)
-T_D.mark(boundaries, 0)
-T_N.mark(boundaries, 1)
+T_D.mark(boundaries, 1)
+T_N.mark(boundaries, 2)
 
 
 # Define boundary condition
 u0 = Expression("1 + 2*x[0]*x[0] + 3*x[1]*x[1]", degree=2)
-bc = DirichletBC(V, u0, boundaries, 0)
+bc = DirichletBC(V, u0, boundaries, 1)
 g = Expression("6 * x[1]", degree=1)
+
+ds = Measure('ds', domain=mesh, subdomain_data=boundaries)
 
 # Define variational problem
 u = TrialFunction(V)
 v = TestFunction(V)
 f = Expression("-10", degree=2)
 a = inner(grad(u), grad(v))*dx
-L = f*v*dx + g*v*ds(1)
+L = f*v*dx + g*v*ds(2)
 
 # Compute solution
 u = Function(V)
