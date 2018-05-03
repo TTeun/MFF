@@ -5,23 +5,28 @@ import matplotlib.pyplot as plt
 def boundary(x, on_boundary):
     return on_boundary
 
-
+def coth(x):
+	return 1. / tanh(x)
 
 def adv_dif_equation(mu = 0.1, N = 32, show_plot=False):
 	mesh = UnitSquareMesh(N, N)
 
-	mu = max(mu, 2. / N)
+	#mu = max(mu, 2. / N)
 
 	# const = Constant('exp(-2. / mu)')
 	u0 = Expression('x[0] * ( (1 - exp( (x[1] - 1) / mu )) / (1 - exp(-2. / mu)))', mu=mu, degree = 3)
-	b = Constant([0,1])
+	b = Constant([0.,1.])
 
 	V = FunctionSpace(mesh, "Lagrange", 1)
 	u = TrialFunction(V)
 	v = TestFunction(V)
-	f = Expression("-10", degree=2)
 	a = mu * inner(grad(u), grad(v))*dx + inner(b, grad(u) * v) * dx
 	L = Expression('0', degree=1) * v * ds
+
+	Pe = 1. / (N * 2. * mu)
+	delta = (2. / N) * (coth(Pe) - 1. / Pe)
+	S = delta * inner(b, grad(v)) * inner(b, grad(u)) * dx
+	a += S
 
 	bc = DirichletBC(V, u0, boundary)
 
@@ -38,8 +43,9 @@ def adv_dif_equation(mu = 0.1, N = 32, show_plot=False):
 def get_convergence_graph(mu):
 	x = []
 	y = []
-	for k in range(7):
-		if (k == 6):
+	k_max = 7
+	for k in range(k_max):
+		if (k == k_max - 1):
 		    y.append(adv_dif_equation(mu, 2 ** (k + 1), True))
 		else:
 			y.append(adv_dif_equation(mu, 2 ** (k + 1)))
@@ -52,7 +58,8 @@ def get_convergence_graph(mu):
 	plt.grid()
 	plt.show(block=True)
 
-get_convergence_graph(0.1)
+
+# get_convergence_graph(0.1)
 get_convergence_graph(1e-3)
 get_convergence_graph(1e-6)
 
