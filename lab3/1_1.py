@@ -7,8 +7,10 @@ def boundary(x, on_boundary):
 
 
 
-def adv_dif_equation(mu = 0.1, N = 32):
+def adv_dif_equation(mu = 0.1, N = 32, show_plot=False):
 	mesh = UnitSquareMesh(N, N)
+
+	mu = max(mu, 2. / N)
 
 	# const = Constant('exp(-2. / mu)')
 	u0 = Expression('x[0] * ( (1 - exp( (x[1] - 1) / mu )) / (1 - exp(-2. / mu)))', mu=mu, degree = 3)
@@ -26,10 +28,10 @@ def adv_dif_equation(mu = 0.1, N = 32):
 	u_sol = Function(V)
 
 	solve(a == L, u_sol, bc)
-    
-	# plot(u_sol)
-	# plt.title('sdaas')
-	# plt.show()
+	if (show_plot):
+		plot(u_sol)
+		plt.title('sdaas')
+		plt.show()
 
 	return errornorm(u0, u_sol, 'H1', degree_rise=0)
 
@@ -37,16 +39,17 @@ def get_convergence_graph(mu):
 	x = []
 	y = []
 	for k in range(7):
-	    y.append(adv_dif_equation(mu, 2 ** (k + 1)))
-	    x.append(2 ** (k + 1))
+		if (k == 6):
+		    y.append(adv_dif_equation(mu, 2 ** (k + 1), True))
+		else:
+			y.append(adv_dif_equation(mu, 2 ** (k + 1)))
+		
+		x.append(2 ** (k + 1))
 
 	fig = plt.figure()
 	plt.title('Convergence of solution to a(u,v) = L(v) for mu=%f' %mu)
 	plt.loglog(x, y, basex=2, basey=2)
 	plt.grid()
-
-	fig.savefig('error.png')
-
 	plt.show(block=True)
 
 get_convergence_graph(0.1)
