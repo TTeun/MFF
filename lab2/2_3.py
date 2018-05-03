@@ -54,16 +54,10 @@ def diffreac(h, print_to_file=False):
     g_R = h * u_f
    
     # Set up variational problem
-<<<<<<< HEAD
-    a = k * inner(grad(u), grad(v)) * dx + k * h * (u * v) * ds(3)
-    L = g_N * v * k * ds(2) + g_R * k * v * ds(3)
-	
-=======
     a = k * inner(grad(u), grad(v)) * dx + k * (u * v) * ds(2)
     L = g_R * k * v * ds(2)
     u = Function(V)
 
->>>>>>> origin/master
     # Solve the system
     solve(a == L, u, bc)
 	

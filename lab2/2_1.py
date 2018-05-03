@@ -40,7 +40,7 @@ def get_approximation(N):
 # Initialize arrays
 x = []
 y = []
-for k in range(6):
+for k in range(8):
     y.append(get_approximation(2 ** (k + 1)))
     x.append(2 ** (k + 1))
 
