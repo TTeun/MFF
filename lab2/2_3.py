@@ -7,6 +7,7 @@ import mshr
 # supress uncecessary output
 set_log_level(ERROR)
 
+# Define boundaries
 class T_Dir(SubDomain):
     def inside(self, x, on_boundary):
         return on_boundary and (near(x[0], -1.0) or near(x[0], 1.0))
@@ -29,7 +30,7 @@ def set_boundary(mesh):
     ds = Measure('ds', domain=mesh, subdomain_data=boundaries)
     return [boundaries, ds]
 
-def diffreac(h, print_to_file=False):
+def heat_equation(h, print_to_file=False):
     N = 32
     k = 401.
     u_f = 280.
@@ -47,31 +48,32 @@ def diffreac(h, print_to_file=False):
 
     # Set up boundary
     [boundaries, ds] = set_boundary(mesh)
-    bc = DirichletBC(V, 10000., boundaries, 1)
+    bc = DirichletBC(V, 1000., boundaries, 1)
 
     # Set up boundary functions
     g_N = Expression('0', degree=1)
     g_R = h * u_f
    
     # Set up variational problem
-    a = k * inner(grad(u), grad(v)) * dx + k * (u * v) * ds(2)
-    L = g_R * k * v * ds(2)
-    u = Function(V)
-
+    a = k * inner(grad(u), grad(v)) * dx + k * h * (u * v) * ds(3)
+    L = g_N * v * k * ds(2) + g_R * k * v * ds(3)
+	
     # Solve the system
-    solve(a == L, u, bc)
+    usol = Function(V)
+    solve(a == L, usol, bc)
 	
     # Plot solution
-    plot(u, interactive=True)
+    plot(usol, interactive=True)
     plt.title('h = %d' % h)
     plt.show()
 
-    print assemble(u * dx)
+    # Print total heat
+    print ('h = %d ==> %f' % (h, assemble(usol * dx)))
 
     if (print_to_file):
         # Print to files readable by ParaView
         file = File('hvalue%d.pvd' % h)
-        file << u
+        file << usol
 
-diffreac(10.,True)
-diffreac(10000.,True)
+heat_equation(10.,True)
+heat_equation(10000.,True)

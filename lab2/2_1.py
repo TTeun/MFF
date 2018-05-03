@@ -40,7 +40,7 @@ def get_approximation(N):
 # Initialize arrays
 x = []
 y = []
-for k in range(8):
+for k in range(7):
     y.append(get_approximation(2 ** (k + 1)))
     x.append(2 ** (k + 1))
 
@@ -48,7 +48,7 @@ for k in range(8):
 plt.ion()
 fig = plt.figure()
 plt.title('Convergence of solution to a(u,v) = L(v)')
-plt.loglog(x, y, basex=2, basey=2)
+plt.loglog(x, y, basex=2, basey=8)
 plt.grid()
 
 fig.savefig('error.png')
