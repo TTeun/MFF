@@ -2,7 +2,7 @@ from dolfin import *
 from numpy import *
 import matplotlib.pyplot as plt
 
-set_log_level(ERROR)
+set_log_level(CRITICAL)
 
 # boundaries
 class T_LEFT_BOTTOM(SubDomain):
@@ -22,7 +22,7 @@ def adv_dif_equation(mu = 0.1, N = 32, SUPG = False, show_plot = False, Neum = F
 	mesh = UnitSquareMesh(N, N)
 	
 	# f and b
-	f = Expression(' (x[0] <= 0.1 && x[1] <= 0.1) ? 10. : 0.', degree=2)
+	f = Expression('(x[0] <= 0.1 && x[1] <= 0.1) ? 10. : 0.', degree=2)
 	b = Constant([1. / sqrt(2.),1. / sqrt(2.)])
 
 	# define function space
@@ -69,12 +69,26 @@ def adv_dif_equation(mu = 0.1, N = 32, SUPG = False, show_plot = False, Neum = F
     
 	print 'minimum of u =' , min(u_sol.vector().array()) # if <0 then wiggles
 	
-	if (show_plot): # plot the solution
+	# plot the solution
+	if (show_plot): 
 		plot(u_sol)
 		plt.title('Density')
 		plt.show()
 		File('sol.pvd') << u_sol
 
-#adv_dif_equation(1e-3, 32, False, True)
-adv_dif_equation(1e-3, 32, False, True, True)
+# Compare the solution obtained with the neumann condition
+# to the solution without neumann condition
+def show_with_and_without_neumann():
+	adv_dif_equation(1e-3, 32, False, True, False)
+	adv_dif_equation(1e-3, 32, False, True, True)
 
+
+# Compare the solution obtained with the SUPG
+# to the solution without SUPG (Both  have 
+# Dirichlet boundary)
+def show_with_and_without_supg():
+	adv_dif_equation(1e-3, 32, False, True, False)
+	adv_dif_equation(1e-3, 32, True, True, False)
+
+# show_with_and_without_supg()
+show_with_and_without_neumann()
