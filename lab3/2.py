@@ -13,7 +13,7 @@ class T_RIGHT_TOP(SubDomain):
     def inside(self, x, on_boundary):
         return on_boundary and (near(x[0], 1.0) or near(x[1], 1.0))
 
-
+# For the supg calculation
 def coth(x):
 	return 1. / tanh(x)
 
@@ -79,24 +79,21 @@ def adv_dif_equation(mu = 0.1, N = 32, SUPG = False, show_plot = False, Neum = F
 		plt.show()
 		File('sol.pvd') << u_sol
 
-# Compare the solution obtained with the neumann condition
-# to the solution without neumann condition
-def show_with_and_without_neumann():
-	adv_dif_equation(1e-3, 32, False, True, False)
-	adv_dif_equation(1e-3, 32, False, True, True)
+def show_supg_neumann(N):
+	adv_dif_equation(1e-3, N, True, True, True)
 
-# Compare the solution obtained with the SUPG
-# to the solution without SUPG (Both  have 
-# Dirichlet boundary)
-def show_with_and_without_supg():
-	adv_dif_equation(1e-3, 32, False, True, False)
-	adv_dif_equation(1e-3, 32, True, True, False)
+def show_neumann(N):
+	adv_dif_equation(1e-3, N, False, True, True)
+
+def show_dirichlet(N):
+	adv_dif_equation(1e-3, N, False, True, False)
+
+def show_supg_dirichlet(N):
+	adv_dif_equation(1e-3, N, True, True, False)
 
 # Print the Peclet numbers for different mesh sizes
 def show_peclet_convergence():
 	for k in range(6):
-		print adv_dif_equation(1e-3, 2 ** (k + 5), False, True, False, True)
+		print adv_dif_equation(1e-3, 2 ** (k + 6), False, True, False, True)
 
-# show_without_and_with_supg()
-# show_without_and_with_neumann()
 show_peclet_convergence()
