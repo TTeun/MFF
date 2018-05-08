@@ -92,12 +92,11 @@ def show_with_and_without_supg():
 	adv_dif_equation(1e-3, 32, False, True, False)
 	adv_dif_equation(1e-3, 32, True, True, False)
 
-
+# Print the Peclet numbers for different mesh sizes
 def show_peclet_convergence():
 	for k in range(6):
-		print adv_dif_equation(1e-3, 2 ** (k + 4), False, True, False, True)
+		print adv_dif_equation(1e-3, 2 ** (k + 5), False, True, False, True)
 
-
-# show_with_and_without_supg()
-# show_with_and_without_neumann()
+# show_without_and_with_supg()
+# show_without_and_with_neumann()
 show_peclet_convergence()
