@@ -79,6 +79,7 @@ def adv_dif_equation(mu = 0.1, N = 32, SUPG = False, show_plot = False, Neum = F
 		plt.show()
 		File('sol.pvd') << u_sol
 
+# Convenience functions
 def show_neumann_with_supg(N):
 	adv_dif_equation(1e-3, N, True, True, True)
 
@@ -95,7 +96,6 @@ def show_dirichlet_with_supg(N):
 def show_peclet_convergence():
 	for k in range(6):
 		print adv_dif_equation(1e-3, 2 ** (k + 6), False, True, False, True)
-
 
 show_dirichlet(64)
 show_dirichlet_with_supg(64)
