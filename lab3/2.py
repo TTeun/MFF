@@ -17,7 +17,7 @@ class T_RIGHT_TOP(SubDomain):
 def coth(x):
 	return 1. / tanh(x)
 
-def adv_dif_equation(mu = 0.1, N = 32, SUPG = False, show_plot = False, Neum = False):
+def adv_dif_equation(mu = 0.1, N = 32, SUPG = False, show_plot = False, Neum = False, JustPeclet = False):
 	# create mesh
 	mesh = UnitSquareMesh(N, N)
 	
@@ -44,6 +44,9 @@ def adv_dif_equation(mu = 0.1, N = 32, SUPG = False, show_plot = False, Neum = F
 	# compute local Peclet number
 	infnorm = 1. / sqrt(2.)
 	Pe = infnorm / (2. * N * mu)
+	if JustPeclet:
+		return Pe
+
 	print 'Pe =',  Pe
 
 	if SUPG: # use SUPG
@@ -82,7 +85,6 @@ def show_with_and_without_neumann():
 	adv_dif_equation(1e-3, 32, False, True, False)
 	adv_dif_equation(1e-3, 32, False, True, True)
 
-
 # Compare the solution obtained with the SUPG
 # to the solution without SUPG (Both  have 
 # Dirichlet boundary)
@@ -90,5 +92,12 @@ def show_with_and_without_supg():
 	adv_dif_equation(1e-3, 32, False, True, False)
 	adv_dif_equation(1e-3, 32, True, True, False)
 
+
+def show_peclet_convergence():
+	for k in range(6):
+		print adv_dif_equation(1e-3, 2 ** (k + 4), False, True, False, True)
+
+
 # show_with_and_without_supg()
-show_with_and_without_neumann()
+# show_with_and_without_neumann()
+show_peclet_convergence()
