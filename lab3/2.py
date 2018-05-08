@@ -26,7 +26,7 @@ def adv_dif_equation(mu = 0.1, N = 32, SUPG = False, show_plot = False, Neum = F
 	b = Constant([1. / sqrt(2.),1. / sqrt(2.)])
 
 	# define function space
-	V = FunctionSpace(mesh, "Lagrange", 2)
+	V = FunctionSpace(mesh, "Lagrange", 1)
 	u = TrialFunction(V)
 	v = TestFunction(V)
 	
@@ -79,7 +79,7 @@ def adv_dif_equation(mu = 0.1, N = 32, SUPG = False, show_plot = False, Neum = F
 		plt.show()
 		File('sol.pvd') << u_sol
 
-def show_supg_neumann(N):
+def show_neumann_with_supg(N):
 	adv_dif_equation(1e-3, N, True, True, True)
 
 def show_neumann(N):
@@ -88,7 +88,7 @@ def show_neumann(N):
 def show_dirichlet(N):
 	adv_dif_equation(1e-3, N, False, True, False)
 
-def show_supg_dirichlet(N):
+def show_dirichlet_with_supg(N):
 	adv_dif_equation(1e-3, N, True, True, False)
 
 # Print the Peclet numbers for different mesh sizes
@@ -96,4 +96,6 @@ def show_peclet_convergence():
 	for k in range(6):
 		print adv_dif_equation(1e-3, 2 ** (k + 6), False, True, False, True)
 
-show_peclet_convergence()
+
+show_dirichlet(64)
+show_dirichlet_with_supg(64)
