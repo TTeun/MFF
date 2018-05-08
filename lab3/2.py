@@ -2,6 +2,8 @@ from dolfin import *
 from numpy import *
 import matplotlib.pyplot as plt
 
+set_log_level(ERROR)
+
 # boundaries
 class T_LEFT_BOTTOM(SubDomain):
     def inside(self, x, on_boundary):
@@ -16,7 +18,6 @@ def coth(x):
 	return 1. / tanh(x)
 
 def adv_dif_equation(mu = 0.1, N = 32, SUPG = False, show_plot = False, Neum = False):
-
 	# create mesh
 	mesh = UnitSquareMesh(N, N)
 	
@@ -57,10 +58,12 @@ def adv_dif_equation(mu = 0.1, N = 32, SUPG = False, show_plot = False, Neum = F
 
 	# set up boundary conditions
 	bcs = [DirichletBC(V, 0, boundaries, 1)]
-	if not Neum: # apply Dirichlet bc on whole boundary
+
+	# apply Dirichlet bc on whole boundary
+	if not Neum: 
 		bcs.append(DirichletBC(V, 0, boundaries, 2))
 		 
-	# Solve the shit
+	# Solve the system!
 	u_sol = Function(V)
 	solve(a == L, u_sol, bcs)
     
@@ -68,10 +71,10 @@ def adv_dif_equation(mu = 0.1, N = 32, SUPG = False, show_plot = False, Neum = F
 	
 	if (show_plot): # plot the solution
 		plot(u_sol)
-		plt.title('sdaas')
+		plt.title('Density')
 		plt.show()
 		File('sol.pvd') << u_sol
 
 #adv_dif_equation(1e-3, 32, False, True)
-adv_dif_equation(1e-3, 32, True, True, True)
+adv_dif_equation(1e-3, 32, False, True, True)
 
