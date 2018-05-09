@@ -70,12 +70,13 @@ def adv_dif_equation(mu = 0.1, N = 32, SUPG = False, show_plot = False, Neum = F
 	u_sol = Function(V)
 	solve(a == L, u_sol, bcs)
     
-	print 'minimum of u =' , min(u_sol.vector().array()) # if <0 then wiggles
+	# print 'minimum of u =' , min(u_sol.vector().array()) # if <0 then wiggles
 	
 	# plot the solution
 	if (show_plot): 
-		plot(u_sol)
+		c = plot(u_sol)
 		plt.title('Density')
+		plt.colorbar(c)
 		plt.show()
 		File('sol.pvd') << u_sol
 
@@ -99,4 +100,10 @@ def show_peclet_convergence(low, high):
 
 # show_dirichlet(64)
 # show_dirichlet_with_supg(64)
-show_peclet_convergence(5, 10)
+# show_peclet_convergence(5, 10)
+
+# show_dirichlet(32)
+# show_dirichlet_with_supg(32)
+# show_peclet_convergence(5, 10)
+show_neumann(64)
+show_neumann_with_supg(64)
