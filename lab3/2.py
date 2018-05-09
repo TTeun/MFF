@@ -17,6 +17,7 @@ class T_RIGHT_TOP(SubDomain):
 def coth(x):
 	return 1. / tanh(x)
 
+# Solve advection diffusion equation on unit square
 def adv_dif_equation(mu = 0.1, N = 32, SUPG = False, show_plot = False, Neum = False, JustPeclet = False):
 	# create mesh
 	mesh = UnitSquareMesh(N, N)
