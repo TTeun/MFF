@@ -13,15 +13,19 @@ class T_RIGHT(SubDomain):
     def inside(self, x, on_boundary):
         return on_boundary and (near(x[0], Len) )
 		
-class T_TOP_BOTTOM(SubDomain):
+class T_TOP(SubDomain):
     def inside(self, x, on_boundary):
-        return on_boundary and (near(x[1], -1.0) or near(x[1], 1.0))
+        return on_boundary and (near(x[1], 1.0))
+
+class T_BOTTOM(SubDomain):
+    def inside(self, x, on_boundary):
+        return on_boundary and (near(x[1], 0.0))
 
 Len = 6.
 mu = 0.001
 ny = 32
 nx = 3*ny
-mesh = RectangleMesh(Point(0,-1), Point(Len,1), nx, ny)
+mesh = RectangleMesh(Point(0,0), Point(Len,1), nx, ny)
 
 VE = VectorElement('P', mesh.ufl_cell(), 2)
 PE = FiniteElement('P', mesh.ufl_cell(), 1)
@@ -39,20 +43,25 @@ L = 0
 
 # Split up the boundary
 boundaries = FacetFunction('size_t', mesh)
-T_l, T_r, T_tb = [T_LEFT(), T_RIGHT(), T_TOP_BOTTOM()]
+T_l, T_r, T_t, T_b = [T_LEFT(), T_RIGHT(), T_TOP(), T_BOTTOM()]
 T_l.mark(boundaries, 1)
 T_r.mark(boundaries, 2)
-T_tb.mark(boundaries, 3)
+T_t.mark(boundaries, 3)
+T_b.mark(boundaries, 4)
 ds = Measure('ds', domain=mesh, subdomain_data=boundaries)
 
+bcs = []
 bc = DirichletBC(W.sub(0), [0,0], boundaries, 3)
+bcs.append(bc)
+bc = DirichletBC(W.sub(0).sub(1), 0, boundaries, 4)
+bcs.append(bc)
 
 n = Constant([1,0])
 L += inner(v, n) * ds(1)
 
 w = Function(W)
 
-solve(a == L, w, bc)
+solve(a == L, w, bcs)
 
 u, p = w.split()  
 
