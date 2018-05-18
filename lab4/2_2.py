@@ -39,13 +39,13 @@ def Stokessten(stenosis = 0, Q = 10.):
 	'''		
 			
 	# Dirichlet inflow bc
-	UQ = Q/1.9833333333
+	UQ = Q*3/4
 	class MyExpr(Expression):
 		def __init__(self, Q, **kwargs):
 			self.Q = Q
 
 		def eval(self, values, x):
-			values[0] = self.Q * (x[0]-1) * (x[0]-1)
+			values[0] = self.Q * (1 - x[1] * x[1])
 			values[1] = 0
 
 		def value_shape(self):
