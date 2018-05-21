@@ -40,7 +40,7 @@ def Stokessten(stenosis = 0, Q = 10.):
 			
 	# Dirichlet inflow bc
 	UQ = Q*3/4
-	class MyExpr(Expression):
+	class Inflow(Expression):
 		def __init__(self, Q, **kwargs):
 			self.Q = Q
 
@@ -52,7 +52,7 @@ def Stokessten(stenosis = 0, Q = 10.):
 			return (2,)
 
 	bcs = []
-	expr = MyExpr(UQ, degree = 2)
+	expr = Inflow(UQ, degree = 2)
 	bc = DirichletBC(W.sub(0), expr, boundaries, 1)
 	bcs.append(bc)
 
@@ -66,11 +66,8 @@ def Stokessten(stenosis = 0, Q = 10.):
 
 	# Define variational problem
 	mu = 0.035
-	a = mu * inner(grad(u), grad(v))*dx + div(u)*q*dx - div(v)*p*dx 
-	L = inner(Constant([0,0]),v) * dx
-
-	n = Constant([1,0])
-	#ds = Measure('ds', domain=mesh, subdomain_data=boundaries)
+	a = mu * inner(grad(u), grad(v)) * dx + div(u) * q * dx - div(v) * p * dx 
+	L = inner(Constant([0,0]),v) * dx # blijkbaar werkt gewoon = 0 niet
 
 	# Compute solution
 	w = Function(W)
@@ -79,12 +76,13 @@ def Stokessten(stenosis = 0, Q = 10.):
 	# Split the mixed solution
 	(u, p) = w.split()
 	
+	# Compute Q
 	n = Constant([1,0])
 	Q = assemble(2*inner(u,n)*ds(1))
 	
 	print 'Q = ', Q
 	
-	# plot solution
+	# plot both u and p in one figure
 	fig = plt.figure()
 
 	plt.subplot(2, 1, 1)
@@ -92,7 +90,6 @@ def Stokessten(stenosis = 0, Q = 10.):
 	plt.title('results')
 	plt.colorbar(c)
 	plt.ylabel('y')
-
 
 	plt.subplot(2, 1, 2)
 	d = plot(p)
@@ -105,9 +102,13 @@ def Stokessten(stenosis = 0, Q = 10.):
 	fig.savefig('sol2.png')
 
 	# Save solution
-	ufile_pvd = File("stokesu.pvd")
+	ufile_pvd = File("Stokes2_2u.pvd")
 	ufile_pvd << u
-	pfile_pvd = File("stokesp.pvd")
+	pfile_pvd = File("stokes2_2p.pvd")
 	pfile_pvd << p
 	
-Stokessten(stenosis = 2, Q = 10.)
+	# Compute pressure drop
+	dp = assemble(p * ds(1) - p * ds(2))     # 1 / |T_1| = 1 / |T_2| = 1
+	return dp
+	
+print Stokessten(stenosis = 2, Q = 25.)
