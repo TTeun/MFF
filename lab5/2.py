@@ -21,14 +21,13 @@ class T_BOTTOM(SubDomain):
 	def inside(self, x, on_boundary):
 		return on_boundary and (near(x[1], 0.0))
 
-def transient_stokes(deltat):
+def transient_stokes(deltat, theta):
 	# Some constants
 	mu = 0.035
 	ny = 16
 	nx = 6*ny
 	rho = 1.2
 	Tf = 2
-	theta = 1.0
 
 	# Neumann condition for x = 0
 	f = Expression("4000. * sin(2 * pi * t) + 2000. * sin(4 * pi * t) + 1333.3 * sin(6 * pi * t)", t=0, degree=3)
@@ -38,7 +37,6 @@ def transient_stokes(deltat):
 
 	# define elements and functionspace
 	VE = FiniteElement('P', mesh.ufl_cell(), 2)
-
 	W = FunctionSpace(mesh, VE)
 
 	# Define functions
@@ -55,7 +53,8 @@ def transient_stokes(deltat):
 	ds = Measure('ds', domain=mesh, subdomain_data=boundaries)
 
 	# Set up the problem
-	a = rho * u * v * dx + deltat * theta * mu * inner(grad(u), grad(v)) * dx 
+	d = Expression("d * t * m", d = deltat, t = theta, m = mu, degree=1)
+	a = rho * u * v * dx + d * inner(grad(u), grad(v)) * dx 
 
 	u0 = interpolate(Constant(0), W)
 
@@ -71,8 +70,7 @@ def transient_stokes(deltat):
 	sol.parameters['rewrite_function_mesh'] = False
 
 	for t in np.arange(deltat, Tf + deltat, deltat):
-		n = Constant([1,0])
-		L = rho * u0 * v * dx - deltat * theta * mu * inner(grad(u0), grad(v)) * dx
+		L = rho * u0 * v * dx #- d * inner(grad(u0), grad(v)) * dx
 		f.t = t + theta * deltat
 		L += deltat * f / Len * v * dx
 
@@ -83,4 +81,4 @@ def transient_stokes(deltat):
 		
 		u0.assign(u1)
 
-transient_stokes(0.05)
+transient_stokes(0.05, 0.0)
