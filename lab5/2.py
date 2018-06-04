@@ -72,10 +72,10 @@ bcs.append(bc)
 sol = XDMFFile('u.xdmf')
 sol.parameters['rewrite_function_mesh'] = False
 
-for t in np.arange(0.0, Tf, deltat):
+for t in np.arange(deltat, Tf + deltat, deltat):
 	F = func(t) / Len
 	n = Constant([1,0])
-	L = rho * u0 * v * dx - deltat * (1. - theta) * mu * inner(grad(u0), grad(v)) * dx - v * F * ds(1)
+	L = rho * u0 * v * dx - deltat * (1. - theta) * mu * inner(grad(u0), grad(v)) * dx + v * F * dx
 	
 	# Solve the problem
 	u1 = Function(W, name='solution')
