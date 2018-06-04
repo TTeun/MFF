@@ -34,7 +34,7 @@ ny = ny/2
 rho = 1.2
 Tf = 2
 dt = 0.5
-theta = 1.
+theta = 0.
 
 # Create mesh
 mesh = RectangleMesh(Point(0,0), Point(Len,1), nx, ny)
