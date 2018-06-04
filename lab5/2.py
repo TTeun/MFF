@@ -76,7 +76,7 @@ sol.parameters['rewrite_function_mesh'] = False
 for t in np.arange(0.0, Tf, deltat):
 	n = Constant([1,0])
 	L = rho * u0 * v * dx - deltat * (1 - theta) * mu * inner(grad(u0), grad(v)) * dx
-	L -= deltat * func(t + theta * deltat) / Len * v * dx
+	L += deltat * func(t + theta * deltat) / Len * v * dx
 
 	b = assemble(L)
 	u1 = Function(W, name='solution')
