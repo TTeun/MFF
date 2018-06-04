@@ -2,9 +2,6 @@ from dolfin import *
 import matplotlib.pyplot as plt
 import numpy as np
 
-
-
-
 # Define domains
 class T_LEFT(SubDomain):
 	def inside(self, x, on_boundary):
@@ -64,10 +61,7 @@ ds = Measure('ds', domain=mesh, subdomain_data=boundaries)
 # Set up the problem
 a = rho * u * v * dx + deltat * theta * mu * inner(grad(u), grad(v)) * dx 
 
-
 u0 = interpolate(Constant(0), W)
-
-
 
 # Add Dirichlet bc's
 bcs = []
@@ -78,16 +72,11 @@ bcs.append(bc)
 sol = XDMFFile('u.xdmf')
 sol.parameters['rewrite_function_mesh'] = False
 
-for t in np.arange(0.0, Tf + deltat, deltat):
-	L = rho * u0 * v * dx - deltat * (1 - theta) * mu * inner(grad(u0), grad(v)) * dx
-	L -=  func(t + theta * deltat) / Len * v * dx
-
-
-
-	# Add Neumann bc
-	#n = Constant([1,0])
-	#L += inner(v, n) * ds(1)
-
+for t in np.arange(0.0, Tf, deltat):
+	F = func(t) / Len
+	n = Constant([1,0])
+	L = rho * u0 * v * dx - deltat * (1. - theta) * mu * inner(grad(u0), grad(v)) * dx - v * F * ds(1)
+	
 	# Solve the problem
 	u1 = Function(W, name='solution')
 	solve(a == L, u1, bcs)
