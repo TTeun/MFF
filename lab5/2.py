@@ -78,9 +78,9 @@ bcs.append(bc)
 sol = XDMFFile('u.xdmf')
 sol.parameters['rewrite_function_mesh'] = False
 
-for t in np.arange(0.0, Tf, deltat):
-	L = rho * u0 * v * dx - deltat * (1 - theta) * mu * inner(grad(u0), grad(v)) * dx - func(t)/Len * v * dx
-	
+for t in np.arange(0.0, Tf + deltat, deltat):
+	L = rho * u0 * v * dx - deltat * (1 - theta) * mu * inner(grad(u0), grad(v)) * dx
+	L -=  func(t + theta * deltat) / Len * v * dx
 
 
 

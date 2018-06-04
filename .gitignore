@@ -1,3 +1,5 @@
 *.png
 *.pvd
 *.vtu
+*.xdmf
+*.h5
