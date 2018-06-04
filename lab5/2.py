@@ -21,7 +21,7 @@ class T_BOTTOM(SubDomain):
 	def inside(self, x, on_boundary):
 		return on_boundary and (near(x[1], 0.0))
 
-def transient_stokes(deltat, theta):
+def transient_stokes(dt, theta):
 	# Some constants
 	mu = 0.035
 	ny = 16
@@ -53,7 +53,7 @@ def transient_stokes(deltat, theta):
 	ds = Measure('ds', domain=mesh, subdomain_data=boundaries)
 
 	# Set up the problem
-	d = Expression("d * t * m", d = deltat, t = theta, m = mu, degree=1)
+	d = Expression("d * t * m", d = dt, t = theta, m = mu, degree=1)
 	a = rho * u * v * dx + d * inner(grad(u), grad(v)) * dx 
 
 	u0 = interpolate(Constant(0), W)
@@ -69,16 +69,19 @@ def transient_stokes(deltat, theta):
 	sol = XDMFFile('u.xdmf')
 	sol.parameters['rewrite_function_mesh'] = False
 
-	for t in np.arange(deltat, Tf + deltat, deltat):
+	index = 0
+	for t in np.arange(dt, Tf + dt, dt):
 		L = rho * u0 * v * dx #- d * inner(grad(u0), grad(v)) * dx
-		f.t = t + theta * deltat
-		L += deltat * f / Len * v * dx
+		f.t = t + theta * dt
+		L += dt * f / Len * v * dx
 
 		b = assemble(L)
 		u1 = Function(W, name='solution')
 		solve(A, u1.vector(), b)
-		sol.write(u1, t)
+		++index
+		if (index % 20 == 0):
+			sol.write(u1, t)
 		
 		u0.assign(u1)
 
-transient_stokes(0.05, 0.0)
+transient_stokes(0.001, 0.0)
