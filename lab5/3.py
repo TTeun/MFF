@@ -34,7 +34,7 @@ ny = ny/2
 rho = 1.2
 Tf = 2
 dt = 0.1
-theta = 0.5
+theta = 1.
 
 # Create mesh
 mesh = RectangleMesh(Point(0,0), Point(Len,1), nx, ny)
@@ -79,10 +79,6 @@ A = assemble(a)
 sol = XDMFFile('u3.xdmf')
 sol.parameters['rewrite_function_mesh'] = False
 
-
-
-
-
 for t in np.arange(0.0, Tf, dt):
 	n = Constant([-1,0])
 	L = rho * inner( u0 , v) * dx - dt * (1 - theta) * mu * inner(grad(u0), grad(v)) * dx - dt * (1 - theta) * q * div(u0) * dx
@@ -93,5 +89,5 @@ for t in np.arange(0.0, Tf, dt):
 	solve(A, w1.vector(), b)
 	u0, _ = split(w1)
 	
-	#sol.write(u0, t)
+	sol.write(w1.split()[0], t)
 	
