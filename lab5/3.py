@@ -96,7 +96,7 @@ for t in np.arange(dt, Tf + dt, dt):
 	b = assemble(L)
 	w1 = Function(W, name='solution')
 	solve(A, w1.vector(), b)
-	u0, p0 = split(w1)
+	u0, _ = split(w1)
 	
-	sol.write(u0, t)
+	sol.write(w1.split()[0], t)
 	
