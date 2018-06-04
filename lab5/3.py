@@ -29,6 +29,7 @@ def transient_stokes(dt, theta):
 	rho = 1.2
 	Tf = 2
 
+<<<<<<< HEAD
 	f = Expression("4000. * sin(2 * pi * t) + 2000. * sin(4 * pi * t) + 1333.3 * sin(6 * pi * t)", t=0, degree=3)
 
 
@@ -92,3 +93,74 @@ def transient_stokes(dt, theta):
 		sol.write(w1.split()[0], t)
 		
 transient_stokes(dt = 0.01, theta = 0.)
+=======
+# Some constants
+Len = 6.
+mu = 0.035
+ny = 32
+nx = 3*ny
+ny = ny/2
+rho = 1.2
+Tf = 2
+dt = 0.5
+theta = 0.
+
+# Create mesh
+mesh = RectangleMesh(Point(0,0), Point(Len,1), nx, ny)
+
+# define elements and functionspace
+VE = VectorElement('P', mesh.ufl_cell(), 2)
+FE = FiniteElement('P', mesh.ufl_cell(), 1)
+ME = VE * FE
+
+W = FunctionSpace(mesh, ME)
+W0 = FunctionSpace(mesh, VE)
+
+# Define functions
+u, p = TrialFunctions(W)
+v, q = TestFunctions(W)
+
+# Split up the boundary
+boundaries = FacetFunction('size_t', mesh)
+T_l, T_r, T_t, T_b = [T_LEFT(), T_RIGHT(), T_TOP(), T_BOTTOM()]
+T_l.mark(boundaries, 1)
+T_r.mark(boundaries, 2)
+T_t.mark(boundaries, 3)
+T_b.mark(boundaries, 4)
+ds = Measure('ds', domain=mesh, subdomain_data=boundaries)
+
+
+# Set up the problem
+d = Expression("d * t", d = dt, t = theta, degree=1)
+d_minus = Expression("d * (1. - t)", d = dt, t = theta, degree=1)
+a = rho * inner( u , v) * dx + d * mu * inner(grad(u), grad(v)) * dx - dt * p * div(v) * dx + d * q * div(u) * dx
+
+u0 = interpolate(Constant([0,0]), W0)
+
+# Add Dirichlet bc's
+bcs = []
+bc = DirichletBC(W.sub(0), [0,0], boundaries, 3)
+bcs.append(bc)
+
+bc = DirichletBC(W.sub(0).sub(1), 0, boundaries, 4)
+bcs.append(bc)
+
+A = assemble(a)
+[bc.apply(A) for bc in bcs]
+
+sol = XDMFFile('u3.xdmf')
+sol.parameters['rewrite_function_mesh'] = False
+
+for t in np.arange(0.0, Tf, dt):
+	n = Constant([-1,0])
+	L = rho * inner( u0 , v) * dx - d_minus * mu * inner(grad(u0), grad(v)) * dx - d_minus * q * div(u0) * dx
+	L -= dt * func(t + theta * dt) * inner(n,v) * ds(1)
+
+	b = assemble(L)
+	w1 = Function(W, name='solution')
+	solve(A, w1.vector(), b)
+	u0, _ = split(w1)
+	
+	sol.write(w1.split()[0], t)
+	
+>>>>>>> origin/master

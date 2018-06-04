@@ -21,7 +21,7 @@ class T_BOTTOM(SubDomain):
 	def inside(self, x, on_boundary):
 		return on_boundary and (near(x[1], 0.0))
 
-def transient_stokes(dt, theta):
+def transient_stokes(dt, theta, print_interval):
 	# Some constants
 	mu = 0.035
 	ny = 16
@@ -71,18 +71,18 @@ def transient_stokes(dt, theta):
 
 	index = 0
 	for t in np.arange(dt, Tf + dt, dt):
-		d_minus = Expression("d * (1. - t)", d = dt, t = theta, degree=1)
+		d_minus = Expression("d * (1. - t) * m", d = dt, t = theta, m = mu, degree=1)
 		L = rho * u0 * v * dx - d_minus * inner(grad(u0), grad(v)) * dx
 		f.t = t + theta * dt
-		L += dt * f / Len * v * dx
+		L += d * f / Len * v * dx
 
 		b = assemble(L)
 		u1 = Function(W, name='solution')
 		solve(A, u1.vector(), b)
 		++index
-		if (index % 20 == 0):
+		if (index % print_interval == 0):
 			sol.write(u1, t)
 		
 		u0.assign(u1)
 
-transient_stokes(0.0005, 0.0)
+transient_stokes(0.02, 0.5, 1)
