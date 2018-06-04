@@ -33,7 +33,7 @@ nx = 3*ny
 ny = ny/2
 rho = 1.2
 Tf = 2
-dt = 0.1
+dt = 0.5
 theta = 1.
 
 # Create mesh
@@ -60,8 +60,11 @@ T_t.mark(boundaries, 3)
 T_b.mark(boundaries, 4)
 ds = Measure('ds', domain=mesh, subdomain_data=boundaries)
 
+
 # Set up the problem
-a = rho * inner( u , v) * dx + dt * theta * mu * inner(grad(u), grad(v)) * dx - dt * p * div(v) * dx + dt * theta * q * div(u) * dx
+d = Expression("d * t", d = dt, t = theta, degree=1)
+d_minus = Expression("d * (1. - t)", d = dt, t = theta, degree=1)
+a = rho * inner( u , v) * dx + d * mu * inner(grad(u), grad(v)) * dx - dt * p * div(v) * dx + d * q * div(u) * dx
 
 u0 = interpolate(Constant([0,0]), W0)
 
@@ -81,7 +84,7 @@ sol.parameters['rewrite_function_mesh'] = False
 
 for t in np.arange(0.0, Tf, dt):
 	n = Constant([-1,0])
-	L = rho * inner( u0 , v) * dx - dt * (1 - theta) * mu * inner(grad(u0), grad(v)) * dx - dt * (1 - theta) * q * div(u0) * dx
+	L = rho * inner( u0 , v) * dx - d_minus * mu * inner(grad(u0), grad(v)) * dx - d_minus * q * div(u0) * dx
 	L -= dt * func(t + theta * dt) * inner(n,v) * ds(1)
 
 	b = assemble(L)

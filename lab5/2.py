@@ -71,7 +71,8 @@ def transient_stokes(dt, theta):
 
 	index = 0
 	for t in np.arange(dt, Tf + dt, dt):
-		L = rho * u0 * v * dx #- d * inner(grad(u0), grad(v)) * dx
+		d_minus = Expression("d * (1. - t)", d = dt, t = theta, degree=1)
+		L = rho * u0 * v * dx - d_minus * inner(grad(u0), grad(v)) * dx
 		f.t = t + theta * dt
 		L += dt * f / Len * v * dx
 
