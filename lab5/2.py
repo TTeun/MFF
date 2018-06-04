@@ -33,8 +33,8 @@ ny = 32
 nx = 3*ny
 ny = ny/2
 rho = 1.2
-Tf = 20
-deltat = 0.5
+Tf = 2
+deltat = 0.1
 theta = 0.5
 
 # Create mesh
@@ -75,11 +75,10 @@ sol = XDMFFile('u.xdmf')
 sol.parameters['rewrite_function_mesh'] = False
 
 for t in np.arange(0.0, Tf, deltat):
-	F = func(t) / Len
 	n = Constant([1,0])
-	L = rho * u0 * v * dx - deltat * (1. - theta) * mu * inner(grad(u0), grad(v)) * dx - v * F * ds(1)
-	
-	# Solve the problem
+	L = rho * u0 * v * dx - deltat * (1 - theta) * mu * inner(grad(u0), grad(v)) * dx
+	L -=  func(t + theta * deltat) / Len * v * dx
+
 	b = assemble(L)
 	u1 = Function(W, name='solution')
 	solve(A, u1.vector(), b)
