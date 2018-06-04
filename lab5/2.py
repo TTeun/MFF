@@ -84,4 +84,4 @@ def transient_stokes(dt, theta):
 		
 		u0.assign(u1)
 
-transient_stokes(0.001, 0.0)
+transient_stokes(0.0005, 0.0)
