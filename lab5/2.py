@@ -77,10 +77,6 @@ for t in np.arange(0.0, Tf, deltat):
 	n = Constant([1,0])
 	L = rho * u0 * v * dx - deltat * (1. - theta) * mu * inner(grad(u0), grad(v)) * dx - v * F * ds(1)
 	
-	# Add Neumann bc
-	#n = Constant([1,0])
-	#L += inner(v, n) * ds(1)
-
 	# Solve the problem
 	u1 = Function(W, name='solution')
 	solve(a == L, u1, bcs)
