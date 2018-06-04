@@ -33,8 +33,8 @@ ny = 32
 nx = 3*ny
 ny = ny/2
 rho = 1.2
-Tf = 20
-deltat = 0.5
+Tf = 2
+deltat = 0.1
 theta = 0.5
 
 # Create mesh
@@ -68,8 +68,6 @@ bcs = []
 bc = DirichletBC(W, 0, boundaries, 3)
 bcs.append(bc)
 
-A = assemble(a)
-[bc.apply(A) for bc in bcs]
 
 sol = XDMFFile('u.xdmf')
 sol.parameters['rewrite_function_mesh'] = False
@@ -79,10 +77,13 @@ for t in np.arange(0.0, Tf, deltat):
 	n = Constant([1,0])
 	L = rho * u0 * v * dx - deltat * (1. - theta) * mu * inner(grad(u0), grad(v)) * dx - v * F * ds(1)
 	
+	# Add Neumann bc
+	#n = Constant([1,0])
+	#L += inner(v, n) * ds(1)
+
 	# Solve the problem
-	b = assemble(L)
 	u1 = Function(W, name='solution')
-	solve(A, u1.vector(), b)
+	solve(a == L, u1, bcs)
 	sol.write(u1, t)
 	
 	u0.assign(u1)
