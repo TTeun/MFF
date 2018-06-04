@@ -73,6 +73,10 @@ bcs.append(bc)
 bc = DirichletBC(W.sub(0).sub(1), 0, boundaries, 4)
 bcs.append(bc)
 
+
+# Neumann condition for x = 0
+f = Expression("4000. * sin(2 * pi * t) + 2000. * sin(4 * pi * t) + 1333.3 * sin(6 * pi * t)", t=0, degree=3)
+
 A = assemble(a)
 [bc.apply(A) for bc in bcs]
 
@@ -83,15 +87,16 @@ sol.parameters['rewrite_function_mesh'] = False
 
 
 
-for t in np.arange(0.0, Tf, dt):
+for t in np.arange(dt, Tf + dt, dt):
 	n = Constant([-1,0])
 	L = rho * inner( u0 , v) * dx - dt * (1 - theta) * mu * inner(grad(u0), grad(v)) * dx - dt * (1 - theta) * q * div(u0) * dx
-	L -= dt * func(t + theta * dt) * inner(n,v) * ds(1)
+	f.t = t + theta * dt
+	L -= dt * f * inner(n,v) * ds(1)
 
 	b = assemble(L)
 	w1 = Function(W, name='solution')
 	solve(A, w1.vector(), b)
-	u0, _ = split(w1)
+	u0, p0 = split(w1)
 	
-	#sol.write(u0, t)
+	sol.write(u0, t)
 	
