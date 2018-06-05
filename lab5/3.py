@@ -21,7 +21,7 @@ class T_BOTTOM(SubDomain):
 	def inside(self, x, on_boundary):
 		return on_boundary and (near(x[1], 0.0))
 
-def transient_stokes(dt, theta):
+def transient_stokes(dt, theta, print_interval = 1):
 	# Some constants
 	mu = 0.035
 	ny = 16
@@ -78,17 +78,23 @@ def transient_stokes(dt, theta):
 	sol = XDMFFile('u3.xdmf')
 	sol.parameters['rewrite_function_mesh'] = False
 
-	for t in np.arange(0.0, Tf, dt):
+	index = 0
+	for t in np.arange(dt, Tf + dt, dt):
 		n = Constant([-1,0])
 		L = rho * inner( u0 , v) * dx - d_minus * mu * inner(grad(u0), grad(v)) * dx - d_minus * q * div(u0) * dx
-		f.t = t + theta * dt
+		f.t = t + (theta-1) * dt
 		L -= dt * f * inner(n,v) * ds(1)
 
 		b = assemble(L)
+		[bc.apply(b) for bc in bcs]
 		w1 = Function(W, name='solution')
 		solve(A, w1.vector(), b)
 		u0, _ = split(w1)
 		
-		sol.write(w1.split()[0], t)
+		index += 1
+		if (index % print_interval == 0):
+			print t
+			sol.write(w1.split()[0], t)
 		
-transient_stokes(dt = 0.01, theta = 0.)
+#transient_stokes(dt = 0.05, theta = 0.5)
+transient_stokes(dt = 0.05, theta = 1.)
