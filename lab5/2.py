@@ -73,7 +73,7 @@ def transient_stokes(dt, theta, print_interval = 1):
 	for t in np.arange(dt, Tf + dt, dt):
 		d_minus = Expression("d * (1. - t) * m", d = dt, t = theta, m = mu, degree=1)
 		L = rho * u0 * v * dx - d_minus * inner(grad(u0), grad(v)) * dx
-		f.t = t + theta * dt
+		f.t = t + (theta - 1.) * dt
 		L += dt * f / Len * v * dx
 
 		b = assemble(L)
@@ -87,7 +87,7 @@ def transient_stokes(dt, theta, print_interval = 1):
 		u0.assign(u1)
 
 #1.3.3
-# transient_stokes(0.05, 0.5)
+transient_stokes(0.05, 0.5)
 # transient_stokes(0.05, 1.)
 
 

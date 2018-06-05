@@ -99,7 +99,7 @@ def transient_stokes(epsilon, P2P1):
 	for t in np.arange(dt, Tf + dt, dt):
 		n = Constant([-1,0])
 		L = rho * inner( u0 , v) * dx - d_minus * mu * inner(grad(u0), grad(v)) * dx - d_minus * q * div(u0) * dx
-		f.t = t + (theta-1) * dt
+		f.t = t + (theta-1.) * dt
 		L -= dt * f * inner(n,v) * ds(1)
 
 		b = assemble(L)
@@ -124,4 +124,4 @@ def transient_stokes(epsilon, P2P1):
 	plt.plot(x, e_kin)
 	plt.show()
 
-transient_stokes(5., False)
+transient_stokes(.1, True)
