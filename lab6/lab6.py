@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 '''
-	we have to compute c_back, find best c_tgt and implement both SUPG and PSPG
+	we have to find best c_tgt and implement both SUPG and PSPG
 '''
 
 
@@ -76,8 +76,8 @@ def transient_Nstokes(finemesh = False, theta = 1., Re = 10., outputfile = 'u1',
 	sol = XDMFFile(outputfile + '.xdmf')
 	sol.parameters['rewrite_function_mesh'] = False
 	
-	if (timestab == 1) or (timestab == 2) or (timestab == 4):
-		c_back = 1
+	if (timestab == 1) or (timestab == 2):
+		c_back = rho / 2
 	elif timestab == 3:
 		c_tgt = 0.0025
 
