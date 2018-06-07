@@ -2,27 +2,10 @@ from dolfin import *
 import matplotlib.pyplot as plt
 import numpy as np
 
+'''
+	we have to compute c_back, find best c_tgt and implement both SUPG and PSPG
+'''
 
-Len = 6.
-# Define domains
-class T_LEFT(SubDomain):
-	def inside(self, x, on_boundary):
-		return on_boundary and (near(x[0], 0.0))
-
-class T_RIGHT(SubDomain):
-	def inside(self, x, on_boundary):
-		return on_boundary and (near(x[0], Len) )
-		
-class T_TOP(SubDomain):
-	def inside(self, x, on_boundary):
-		return on_boundary and (near(x[1], 1.0))
-
-class T_BOTTOM(SubDomain):
-	def inside(self, x, on_boundary):
-		return on_boundary and (near(x[1], 0.0))
-		
-def cabsmin(c):
-	return 0.5 * abs(c - abs(c))
 
 def transient_Nstokes(finemesh = False, theta = 1., Re = 10., outputfile = 'u1', timestab = 0, Tenan = False, PSPG = False, SUPG = False):
 	'''
