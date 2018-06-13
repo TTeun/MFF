@@ -7,7 +7,7 @@ import numpy as np
 '''
 
 
-def transient_Nstokes(finemesh = False, theta = 1., Re = 10., outputfile = 'u1', timestab = 0, Tenan = False, PSPG = False, SUPG = False):
+def transient_Nstokes(finemesh = False, theta = 1., Re = 10., outputfile = 'u1', timestab = 0, Temam = False, PSPG = False, SUPG = False, epsilon = 0.01):
 	'''
 	timestab =  0: no stabilization
 				1-3: stabilization methods 1-3 of excersize 2.2
@@ -81,6 +81,9 @@ def transient_Nstokes(finemesh = False, theta = 1., Re = 10., outputfile = 'u1',
 	elif timestab == 3:
 		c_tgt = 0.0025
 
+	h = CellDiameter(mesh)
+
+	pspg_term = h * h * epsilon / mu
 	for t in np.arange(dt, Tf + dt, dt):
 		u_in.t = t + (theta-1) * dt
 		
@@ -100,8 +103,12 @@ def transient_Nstokes(finemesh = False, theta = 1., Re = 10., outputfile = 'u1',
 		elif timestab == 3:
 			a += d * c_tgt * rho / 4. * abs(inner(u0,n)-abs(inner(u0,n))) * inner(grad(u)*tconst, grad(v)*tconst) * ds(2)
 			L -= d_minus * c_tgt * rho / 4. * abs(inner(u0,n)-abs(inner(u0,n))) * inner(grad(u0)*tconst, grad(v)*tconst) * ds(2)
-		if Tenan:
+		if Temam:
 			a += d * rho * 0.5 * div(u0) * inner(u, v) * dx
+
+		if PSPG:
+			a += pspg_term * inner(grad(p), grad(q)) * dx
+
 			
 		assemble(a, tensor=A)
 		[bc.apply(A) for bc in bcs]
@@ -119,4 +126,4 @@ def transient_Nstokes(finemesh = False, theta = 1., Re = 10., outputfile = 'u1',
 #transient_Nstokes(Re = 500, outputfile = 'u1_Re500')
 #transient_Nstokes(Re = 2000, outputfile = 'u1_Re2000')
 
-transient_Nstokes(Re = 7000, outputfile = 'utest', timestab = 2, Tenan = True, SUPG = True)
+transient_Nstokes(Re = 7000, outputfile = 'utest', timestab = 2, Temam = True, SUPG = True, PSPG = True)
