@@ -82,8 +82,10 @@ def transient_Nstokes(finemesh = False, theta = 1., Re = 10., outputfile = 'u1',
 		c_tgt = 0.0025
 
 	h = CellDiameter(mesh)
+	if PSPG:
+		pspg_term = h * h * epsilon / mu
+	
 
-	pspg_term = h * h * epsilon / mu
 	for t in np.arange(dt, Tf + dt, dt):
 		u_in.t = t + (theta-1) * dt
 		
@@ -109,6 +111,11 @@ def transient_Nstokes(finemesh = False, theta = 1., Re = 10., outputfile = 'u1',
 		if PSPG:
 			a += pspg_term * inner(grad(p), grad(q)) * dx
 
+		if SUPG:
+			delta = ( 4. / (dt * dt) + 4. * dot(u0, u0) / (h * h) + (12. * mu / (rho * h * h)) ** 2. ) ** (-0.5) 
+			a += delta * rho * inner( dot(u0, nabla_grad(u))    ,    dot(u0, nabla_grad(v))) * dx
+		# dot(u0, nabla_grad(u))
+
 			
 		assemble(a, tensor=A)
 		[bc.apply(A) for bc in bcs]
@@ -126,4 +133,4 @@ def transient_Nstokes(finemesh = False, theta = 1., Re = 10., outputfile = 'u1',
 #transient_Nstokes(Re = 500, outputfile = 'u1_Re500')
 #transient_Nstokes(Re = 2000, outputfile = 'u1_Re2000')
 
-transient_Nstokes(Re = 7000, outputfile = 'utest', timestab = 2, Temam = True, SUPG = True, PSPG = True)
+transient_Nstokes(Re = 7000, outputfile = 'utest', timestab = 2, Temam = True, SUPG = True, PSPG = False)
