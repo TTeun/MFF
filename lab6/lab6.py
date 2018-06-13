@@ -7,7 +7,17 @@ import numpy as np
 '''
 
 
-def transient_Nstokes(finemesh = False, theta = 1., Re = 10., outputfile = 'u1', timestab = 0, Temam = False, PSPG = False, SUPG = False, epsilon = 0.01):
+def transient_Nstokes(
+	finemesh = False, 
+	theta = 1., 
+	Re = 10., 
+	outputfile = 'u1',
+	timestab = 0,
+	Temam = False, 
+	PSPG = False,
+	SUPG = False,
+	epsilon = 0.01,
+	Combined = False):
 	'''
 	timestab =  0: no stabilization
 				1-3: stabilization methods 1-3 of excersize 2.2
@@ -36,7 +46,7 @@ def transient_Nstokes(finemesh = False, theta = 1., Re = 10., outputfile = 'u1',
 	ds = Measure('ds', domain=mesh, subdomain_data=boundaries)
 
 	# define elements and functionspace
-	if SUPG or PSPG:
+	if SUPG or PSPG or Combined:
 		VE = VectorElement('P', mesh.ufl_cell(), 1)
 	else:
 		VE = VectorElement('P', mesh.ufl_cell(), 2)
@@ -84,7 +94,6 @@ def transient_Nstokes(finemesh = False, theta = 1., Re = 10., outputfile = 'u1',
 	h = CellDiameter(mesh)
 	if PSPG:
 		pspg_term = h * h * epsilon / mu
-	
 
 	for t in np.arange(dt, Tf + dt, dt):
 		u_in.t = t + (theta-1) * dt
@@ -108,13 +117,15 @@ def transient_Nstokes(finemesh = False, theta = 1., Re = 10., outputfile = 'u1',
 		if Temam:
 			a += d * rho * 0.5 * div(u0) * inner(u, v) * dx
 
-		if PSPG:
-			a += pspg_term * inner(grad(p), grad(q)) * dx
-
-		if SUPG:
+		if Combined:
 			delta = ( 4. / (dt * dt) + 4. * dot(u0, u0) / (h * h) + (12. * mu / (rho * h * h)) ** 2. ) ** (-0.5) 
-			a += delta * rho * inner( dot(u0, nabla_grad(u))    ,    dot(u0, nabla_grad(v))) * dx
-		# dot(u0, nabla_grad(u))
+			a += delta * rho * inner( dot(u0, nabla_grad(u)) + grad(p), dot(u0, nabla_grad(v)) + grad(q)) * dx
+		else:
+			if PSPG:
+				a += pspg_term * inner(grad(p), grad(q)) * dx
+			if SUPG:
+				delta = ( 4. / (dt * dt) + 4. * dot(u0, u0) / (h * h) + (12. * mu / (rho * h * h)) ** 2. ) ** (-0.5) 
+				a += delta * rho * inner( dot(u0, nabla_grad(u)), dot(u0, nabla_grad(v))) * dx
 
 			
 		assemble(a, tensor=A)
@@ -133,4 +144,4 @@ def transient_Nstokes(finemesh = False, theta = 1., Re = 10., outputfile = 'u1',
 #transient_Nstokes(Re = 500, outputfile = 'u1_Re500')
 #transient_Nstokes(Re = 2000, outputfile = 'u1_Re2000')
 
-transient_Nstokes(Re = 7000, outputfile = 'utest', timestab = 2, Temam = True, SUPG = True, PSPG = False)
+transient_Nstokes(Re = 7000, outputfile = 'utest', timestab = 2, Temam = True, SUPG = True, PSPG = False, Combined = True)
