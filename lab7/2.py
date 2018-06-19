@@ -78,12 +78,23 @@ def CT_transient_stokes(
 	solver_pr.set_operator(A_pr)
 	
 	
+	# Velocity correction
+	a_vel = inner(u, v) * dx
+	
+	A_vel = assemble(a_vel)
+	
+	solver_vel = LinearSolver()
+	solver_vel.set_operator(A_vel)
+	
+	
 
 	sol = XDMFFile(outputfile + '.xdmf')
 	sol.parameters['rewrite_function_mesh'] = False
 	
 	
 	u_tilde = Function(V)
+	pnew = Function(Q)
+	u1 = Function(V, name = 'solution')
 	for t in np.arange(dt, Tf + dt, dt):
 		u_in.t = t
 		
@@ -92,7 +103,6 @@ def CT_transient_stokes(
 		L_vis = rho * inner( u0 , v) * dx
 		b = assemble(L_vis)
 		[bc.apply(b) for bc in bcs_vis]
-		u_tilde = Function(V, name='solution')
 		solver_vis.solve(u_tilde.vector(), b)	
 		
 		
@@ -101,14 +111,16 @@ def CT_transient_stokes(
 		L_pr = - rho / dt * div(u_tilde) * q * dx
 		b = assemble(L_pr)
 		bc_pr.apply(b)
-		pnew = Function(Q)
 		solver_pr.solve(pnew.vector(), b)
 		
 		# Velocity correction Step
-		u0 = project(u_tilde - dt / rho * grad(pnew), V)
-		u0.rename('solution', 'u0')
+		
+		L_vel = inner(u_tilde,v) * dx  - dt / rho * inner(grad(pnew), v)  * dx
+		b = assemble(L_vel)
+		solver_vel.solve(u1.vector(), b)
+		u0 = u1
 		
 		print t
-		sol.write(u0, t)
+		sol.write(u1, t)
 		
 CT_transient_stokes(Re = 7000, outputfile = 'utest', Tct = 0.001)
