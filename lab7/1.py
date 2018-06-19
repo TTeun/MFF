@@ -51,6 +51,7 @@ def monolithic_transient_stokes(
 	
 	u0 = interpolate(Constant([0,0]), W0)
 
+	
 
 	# Add Dirichlet bc's
 	bcs = []
@@ -82,4 +83,4 @@ def monolithic_transient_stokes(
 		print t
 		sol.write(w.split()[0], t)
 		
-monolithic_transient_stokes(Re = 7000, outputfile = 'utest', Tct = 0.001)
+monolithic_transient_stokes(Re = 7000, outputfile = 'utest', Tct = 0.0001)
