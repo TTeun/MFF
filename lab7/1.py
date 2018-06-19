@@ -42,6 +42,8 @@ def monolithic_transient_stokes(
 	u, p = TrialFunctions(W)
 	v, q = TestFunctions(W)
 
+	pspg_term = Tct/rho
+	
 	# Set up the problem
 	a = rho * inner( u , v) * dx + dt * mu * inner(grad(u), grad(v)) * dx - dt * p * div(v) * dx + dt * q * div(u) * dx
 	a += pspg_term * inner(grad(p), grad(q)) * dx # PSPG
