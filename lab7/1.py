@@ -68,33 +68,18 @@ def monolithic_transient_stokes(
 
 	sol = XDMFFile(outputfile + '.xdmf')
 	sol.parameters['rewrite_function_mesh'] = False
-	
-
-	pspg_term = Tct/rho
-
+	solver = LinearSolver()
+	solver.set_operator(A)
 	for t in np.arange(dt, Tf + dt, dt):
 		u_in.t = t
-		
-
-		
 		L = rho * inner( u0 , v) * dx
-		
-
-		
-
-			
 		b = assemble(L)
 		[bc.apply(b) for bc in bcs]
 		w = Function(W, name='solution')
-		solve(A, w.vector(), b)
+		solver.solve(w.vector(), b)	
 		u0, _ = split(w)
 		
 		print t
 		sol.write(w.split()[0], t)
 		
-        
-#transient_Nstokes(Re = 10, outputfile = 'u1_Re10')
-#transient_Nstokes(Re = 500, outputfile = 'u1_Re500')
-#transient_Nstokes(Re = 2000, outputfile = 'u1_Re2000')
-
 monolithic_transient_stokes(Re = 7000, outputfile = 'utest', Tct = 0.001)
