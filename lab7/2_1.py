@@ -1,5 +1,4 @@
 from dolfin import *
-import matplotlib.pyplot as plt
 import numpy as np
 
 
@@ -43,7 +42,7 @@ def monolithic_transient_Nstokes(
 	u, p = TrialFunctions(W)
 	v, q = TestFunctions(W)
 
-	h =  0.025 #CellDiameter(mesh)
+	h =  CellDiameter(mesh)
 	pspg_term = h * h * epsilon / mu
 	
 	# Set up the problem
@@ -70,8 +69,12 @@ def monolithic_transient_Nstokes(
 	A = assemble(a)
 	[bc.apply(A) for bc in bcs]
 
-	sol = XDMFFile(outputfile + '.xdmf')
-	sol.parameters['rewrite_function_mesh'] = False
+	solu = XDMFFile(outputfile + '_u.xdmf')
+	solu.parameters['rewrite_function_mesh'] = False
+	
+	solp = XDMFFile(outputfile + '_p.xdmf')
+	solp.parameters['rewrite_function_mesh'] = False
+	
 	solver = LinearSolver()
 	solver.set_operator(A)
 	for t in np.arange(dt, Tf + dt, dt):
@@ -86,6 +89,7 @@ def monolithic_transient_Nstokes(
 		u0, _ = split(w)
 		
 		print t
-		sol.write(w.split()[0], t)
+		solu.write(w.split()[0], t)
+		solu.write(w.split()[1], t)
 		
-monolithic_transient_Nstokes(Re = 500, outputfile = 'utest', Tct = 0.0001)
+monolithic_transient_Nstokes(Re = 500, outputfile = 'test1', Tct = 0.0001)

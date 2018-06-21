@@ -1,5 +1,4 @@
 from dolfin import *
-import matplotlib.pyplot as plt
 import numpy as np
 
 
@@ -90,12 +89,14 @@ def CT_transient_Nstokes(
 	
 	
 
-	sol = XDMFFile(outputfile + '.xdmf')
-	sol.parameters['rewrite_function_mesh'] = False
+	solu = XDMFFile(outputfile + '_u.xdmf')
+	solu.parameters['rewrite_function_mesh'] = False
 	
+	solp = XDMFFile(outputfile + '_p.xdmf')
+	solp.parameters['rewrite_function_mesh'] = False
 	
 	u_tilde = Function(V)
-	pnew = Function(Q)
+	pnew = Function(Q, name = 'pressure')
 	u1 = Function(V, name = 'solution')
 	for t in np.arange(dt, Tf + dt, dt):
 		u_in.t = t
@@ -125,6 +126,7 @@ def CT_transient_Nstokes(
 		u0 = u1
 		
 		print t
-		sol.write(u1, t)
+		solu.write(u1, t)
+		solp.write(pnew, t)
 		
-CT_transient_Nstokes(Re = 5000, outputfile = 'utest', Tct = 0.001)
+CT_transient_Nstokes(Re = 5000, outputfile = 'test', Tct = 0.001)
