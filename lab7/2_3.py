@@ -18,6 +18,7 @@ def CT_transient_Nstokes(
 	dt = 0.01
 	R = 1
 	u_bulk = Re * mu / (2. * rho * R)
+	n = Constant([1,0])
 
 	u_in = Expression(('3/2 * u_bulk * sin(pi * t / Tf) * (1 - (x[1] / R) * (x[1] / R))', '0'), u_bulk = u_bulk, t = 0., Tf = Tf, R = R, degree=3)
 
@@ -87,6 +88,9 @@ def CT_transient_Nstokes(
 	solver_vel = LinearSolver()
 	solver_vel.set_operator(A_vel)
 	
+	# backflow stabilization
+	c_back = rho / 2
+	a_vis += dt * c_back * 0.5 * abs(inner(u0,n)-abs(inner(u0,n))) * inner(u, v)* ds(2)
 	
 
 	solu = XDMFFile(outputfile + '_u.xdmf')
@@ -98,46 +102,43 @@ def CT_transient_Nstokes(
 	u_tilde = Function(V)
 	pnew = Function(Q, name = 'pressure')
 	u1 = Function(V, name = 'solution')
+	i = 0;
+	mass_bal = []
 	for t in np.arange(dt, Tf + dt, dt):
 		u_in.t = t
 		
 		# Viscous Step
-		a_vis = rho * inner( u , v) * dx + dt * mu * inner(grad(u), grad(v)) * dx
-		a_vis += dt * rho * inner( grad(u) * u0, v) * dx
-		a_vis += dt * rho * 0.5 * div(u0) * inner(u, v) * dx 
+		
+		assemble(a_vis, tensor=A_vis)
+		[bc.apply(A_vis) for bc in bcs_vis]
 		L_vis = rho * inner( u0 , v) * dx
+		b = assemble(L_vis)
+		[bc.apply(b) for bc in bcs_vis]
+		solver_vis.solve(u_tilde.vector(), b)	
 		
-		bcs_vis = []
-		bc = DirichletBC(V, u_in, boundaries, 1)
-		bcs_vis.append(bc)
-		
-		bc = DirichletBC(V.sub(1), 0, boundaries, 3)
-		bcs_vis.append(bc)
-
-		bc = DirichletBC(V, [0,0], boundaries, 4)
-		bcs_vis.append(bc)
-		
-		solve(a_vis == L_vis, u_tilde, bcs_vis)	
 		
 		# Pressure projection Step
-		a_pr = inner(grad(p), grad(q)) * dx
+		
 		L_pr = - rho / dt * div(u_tilde) * q * dx
-		
-		bc_pr = DirichletBC(Q, 0, boundaries, 2)
-		
-		solve(a_pr == L_pr, pnew, bc_pr)
+		b = assemble(L_pr)
+		bc_pr.apply(b)
+		solver_pr.solve(pnew.vector(), b)
 		
 		# Velocity correction Step
-		a_vel = inner(u, v) * dx
-		L_vel = inner(u_tilde,v) * dx  - dt / rho * inner(grad(pnew), v)  * dx
 		
-		solve(a_vel == L_vel, u1)
+		L_vel = inner(u_tilde,v) * dx  - dt / rho * inner(grad(pnew), v)  * dx
+		b = assemble(L_vel)
+		solver_vel.solve(u1.vector(), b)
 		u0 = u1
 		
 		print t
 		solu.write(u1, t)
 		solp.write(pnew, t)
 		
-timer = Timer()
-CT_transient_Nstokes(Re = 5000, outputfile = 'test2', Tct = 0.001)
-print(timer.elapsed())
+		mass_bal.append(assemble(-inner(u1,n)*ds(1) + inner(u1,n)*ds(2)))
+		i += 1
+	print(mass_bal)
+		
+		
+
+CT_transient_Nstokes(Re = 5000, outputfile = 'test', Tct = 0.0001)
