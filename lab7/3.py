@@ -1,4 +1,5 @@
 from dolfin import *
+import matplotlib.pyplot as plt
 import numpy as np
 
 
@@ -6,7 +7,7 @@ import numpy as np
 def CT_transient_Nstokes(
 	Re = 10., 
 	outputfile = 'u1',
-	Tct = 0.001):
+	dt = 0.001):
 	'''
 	timestab =  0: no stabilization
 				1-3: stabilization methods 1-3 of excersize 2.2
@@ -15,7 +16,6 @@ def CT_transient_Nstokes(
 	mu = 0.035
 	rho = 1.2
 	Tf = 0.4
-	dt = 0.01
 	R = 1
 	u_bulk = Re * mu / (2. * rho * R)
 	n = Constant([1,0])
@@ -104,6 +104,7 @@ def CT_transient_Nstokes(
 	u1 = Function(V, name = 'solution')
 	i = 0;
 	mass_bal = []
+	tt = []
 	for t in np.arange(dt, Tf + dt, dt):
 		u_in.t = t
 		
@@ -132,13 +133,23 @@ def CT_transient_Nstokes(
 		u0 = u1
 		
 		print t
-		solu.write(u1, t)
-		solp.write(pnew, t)
+		if ( t % 0.01 == 0):
+			solu.write(u1, t)
+			solp.write(pnew, t)
 		
 		mass_bal.append(assemble(-inner(u1,n)*ds(1) + inner(u1,n)*ds(2)))
+		tt.append(t)
 		i += 1
-	print(mass_bal)
+		
+	
+	fig = plt.figure()
+	plt.plot(tt, mass_bal)
+	plt.title('mass balance for dt = ' + str(dt))
+	plt.xlabel('t')
+	plt.ylabel('mass balance')
+	fig.savefig('mass_bal_' + outputfile + '.png')
+	
 		
 		
 
-CT_transient_Nstokes(Re = 5000, outputfile = 'test', Tct = 0.0001)
+CT_transient_Nstokes(Re = 5000, outputfile = 'test', dt = 0.01)

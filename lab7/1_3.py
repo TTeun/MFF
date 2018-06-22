@@ -16,7 +16,7 @@ def monolithic_transient_stokes(
 	mu = 0.035
 	rho = 1.2
 	Tf = 0.4
-	dt = 0.01
+	dt = Tct
 	R = 1
 	u_bulk = Re * mu / (2. * rho * R)
 

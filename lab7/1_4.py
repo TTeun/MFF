@@ -7,7 +7,7 @@ import numpy as np
 def CT_transient_stokes(
 	Re = 10., 
 	outputfile = 'u1',
-	Tct = 0.001):
+	dt = 0.001):
 	'''
 	timestab =  0: no stabilization
 				1-3: stabilization methods 1-3 of excersize 2.2
@@ -16,7 +16,6 @@ def CT_transient_stokes(
 	mu = 0.035
 	rho = 1.2
 	Tf = 0.4
-	dt = 0.01
 	R = 1
 	u_bulk = Re * mu / (2. * rho * R)
 
@@ -123,4 +122,4 @@ def CT_transient_stokes(
 		print t
 		sol.write(u1, t)
 		
-CT_transient_stokes(Re = 7000, outputfile = 'utest', Tct = 0.001)
+CT_transient_stokes(Re = 7000, outputfile = 'utest', dt = 0.001)

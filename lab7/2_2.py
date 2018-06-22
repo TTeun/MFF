@@ -6,7 +6,7 @@ import numpy as np
 def CT_transient_Nstokes(
 	Re = 10., 
 	outputfile = 'u1',
-	Tct = 0.001):
+	dt = 0.001):
 	'''
 	timestab =  0: no stabilization
 				1-3: stabilization methods 1-3 of excersize 2.2
@@ -15,7 +15,6 @@ def CT_transient_Nstokes(
 	mu = 0.035
 	rho = 1.2
 	Tf = 0.4
-	dt = 0.01
 	R = 1
 	u_bulk = Re * mu / (2. * rho * R)
 
@@ -133,7 +132,7 @@ def CT_transient_Nstokes(
 def CT_transient_Nstokes_slow(
 	Re = 10., 
 	outputfile = 'u1',
-	Tct = 0.001):
+	dt = 0.001):
 	'''
 	timestab =  0: no stabilization
 				1-3: stabilization methods 1-3 of excersize 2.2
@@ -142,7 +141,6 @@ def CT_transient_Nstokes_slow(
 	mu = 0.035
 	rho = 1.2
 	Tf = 0.4
-	dt = 0.01
 	R = 1
 	u_bulk = Re * mu / (2. * rho * R)
 
@@ -266,11 +264,11 @@ def CT_transient_Nstokes_slow(
 		solp.write(pnew, t)
 		
 timer = Timer()
-CT_transient_Nstokes(Re = 5000, outputfile = 'test', Tct = 0.001)
+CT_transient_Nstokes(Re = 5000, outputfile = 'test', dt = 0.001)
 time = timer.elapsed()
 
 timer = Timer()
-CT_transient_Nstokes_slow(Re = 5000, outputfile = 'test', Tct = 0.001)
+CT_transient_Nstokes_slow(Re = 5000, outputfile = 'test', dt = 0.001)
 time_slow = timer.elapsed()
 
 print('time slow method: ' )
