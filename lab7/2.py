@@ -126,7 +126,7 @@ def CT_transient_Nstokes(
 		solver_vel.solve(u1.vector(), b)
 		u0 = u1
 		
-		if (i % 10 == 0):
+		if (i % 10 == 9):
 			print t
 			solu.write(u1, t)
 			solp.write(pnew, t)
@@ -168,12 +168,12 @@ def monolithic_transient_Nstokes(
 	u, p = TrialFunctions(W)
 	v, q = TestFunctions(W)
 
-	h =  0.025
+	h =  CellDiameter(mesh)
 	pspg_term = h * h * epsilon / mu
 	
 	# Set up the problem
 	a = rho * inner( u , v) * dx + dt * mu * inner(grad(u), grad(v)) * dx - dt * p * div(v) * dx + dt * q * div(u) * dx
-	a += pspg_term * inner(grad(p), grad(q)) * dx # PSPG
+	a += dt * pspg_term * inner(grad(p), grad(q)) * dx # PSPG
 	
 	u0 = interpolate(Constant([0,0]), W0)
 	
@@ -216,21 +216,22 @@ def monolithic_transient_Nstokes(
 		solver.solve(w.vector(), b)	
 		u0, _ = split(w)
 		
-		if (i%10 == 0):
+		if (i%10 == 9):
 			print t
 			solu.write(w.split()[0], t)
 			solu.write(w.split()[1], t)
 		i += 1
 		
-timer = Timer()
-CT_transient_Nstokes(Re = 500, outputfile = '2_CT', dt = 0.001)
-time = timer.elapsed()
 
 timer = Timer()
 monolithic_transient_Nstokes(Re = 500, outputfile = '2_mon', dt = 0.001)
-time_slow = timer.elapsed()
+time_mon = timer.elapsed()
+
+timer = Timer()
+CT_transient_Nstokes(Re = 500, outputfile = '2_CT', dt = 0.001)
+time_CT = timer.elapsed()
 
 print('time monolithic method: ' )
-print(time_slow)
+print(time_mon)
 print('time CT method: ')
-print(time)
+print(time_CT)
