@@ -8,10 +8,7 @@ def CT_transient_stokes(
 	Re = 10., 
 	outputfile = 'u1',
 	dt = 0.001):
-	'''
-	timestab =  0: no stabilization
-				1-3: stabilization methods 1-3 of excersize 2.2
-	'''
+	
 	# Some constants
 	mu = 0.035
 	rho = 1.2
@@ -87,13 +84,18 @@ def CT_transient_stokes(
 	
 	
 
-	sol = XDMFFile(outputfile + '.xdmf')
-	sol.parameters['rewrite_function_mesh'] = False
+	solu = XDMFFile(outputfile + '_u.xdmf')
+	solu.parameters['rewrite_function_mesh'] = False
+	
+	
+	solp = XDMFFile(outputfile + '_p.xdmf')
+	solp.parameters['rewrite_function_mesh'] = False
 	
 	
 	u_tilde = Function(V)
-	pnew = Function(Q)
+	pnew = Function(Q, name = 'pressure')
 	u1 = Function(V, name = 'solution')
+	i = 0
 	for t in np.arange(dt, Tf + dt, dt):
 		u_in.t = t
 		
@@ -119,7 +121,10 @@ def CT_transient_stokes(
 		solver_vel.solve(u1.vector(), b)
 		u0 = u1
 		
-		print t
-		sol.write(u1, t)
+		if i % 10 == 0:
+			print t
+			solu.write(u1, t)
+			solp.write(pnew, t)
+		i += 1
 		
-CT_transient_stokes(Re = 7000, outputfile = 'utest', dt = 0.001)
+CT_transient_stokes(Re = 7000, outputfile = '1_4', dt = 0.001)

@@ -25,8 +25,8 @@ def CT_transient_Nstokes(
 	n = Constant([1,0])
 
 	# Create mesh
-	mesh = Mesh('stenosis_f0.6_fine/stenosis_f0.6_fine.xml');
-	boundaries = MeshFunction('size_t', mesh, 'stenosis_f0.6_fine/stenosis_f0.6_fine_facet_region.xml')
+	mesh = Mesh('channel/channel.xml');
+	boundaries = MeshFunction('size_t', mesh, 'channel/channel_facet_region.xml')
 	
 	ds = Measure('ds', domain=mesh, subdomain_data=boundaries)
 
@@ -152,4 +152,4 @@ def CT_transient_Nstokes(
 		
 		
 
-CT_transient_Nstokes(Re = 5000, outputfile = 'test', dt = 0.01)
+CT_transient_Nstokes(Re = 5000, outputfile = '1_3_dt1e-3', dt = 0.01)
